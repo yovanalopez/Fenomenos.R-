@@ -1,34 +1,33 @@
-# Código
-#' ---
-#' title: "Análisis estadístico de fenómenos naturales atmosféricos en Colombia"
-#' subtitle: "Trabajo de Estadística Inferencial — Probabilidad e Inferencia Estadística"
-#' author: "Integrantes: (escribir aquí los nombres del grupo, máximo 3)"
-#' date: "Universidad de Antioquia — Ingeniería Industrial — 2026-2"
-#' output:
-#'   html_document:
-#'     toc: true
-#'     toc_depth: 2
-#'     theme: cosmo
-#'     df_print: paged
-#' ---
-#' 
+# ----------------------------------------------------------------------------------
+#  "Análisis estadístico de fenómenos naturales atmosféricos en Colombia"
+#  "Trabajo de Estadística Inferencial — Probabilidad e Inferencia Estadística"
+#  "Integrantes: (escribir aquí los nombres del grupo, máximo 3)"
+#   "Universidad de Antioquia — Ingeniería Industrial — 2026-2"
+# output:
+#   html_document:
+#     toc: true
+#     toc_depth: 2
+#     theme: cosmo
+#     df_print: paged
+# -----------------------------------------------------------------------------------
+ 
 ## ----setup, include=FALSE-----------------------------------------------------------------------------------
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
                       fig.align = "center", fig.width = 8, fig.height = 4.6)
 options(width = 110, digits = 5)
 
-#' 
-#' # Introducción y planteamiento
-#' 
-#' Los fenómenos atmosféricos (tormentas eléctricas, lluvias intensas, vendavales y granizadas) afectan la continuidad de las operaciones industriales, logísticas y de distribución. Este informe analiza, con herramientas de **estadística descriptiva e inferencial**, una base de datos de eventos atmosféricos en Colombia para:
-#' 
-#' - describir el comportamiento de sus variables,
-#' - contrastar hipótesis sobre medias y proporciones,
-#' - evaluar normalidad y asociación entre variables cualitativas,
-#' - comparar grupos y apoyar decisiones de gestión del riesgo y planificación de operaciones.
-#' 
-#' **Nivel de significancia.** En todo el trabajo se usa $\alpha = 0.05$. Regla de decisión: se rechaza $H_0$ cuando el estadístico cae en la región de rechazo, o equivalentemente cuando el valor-$p < \alpha$.
-#' 
+ 
+## Introducción y planteamiento
+
+# Los fenómenos atmosféricos (tormentas eléctricas, lluvias intensas, vendavales y granizadas) afectan la continuidad de las operaciones industriales, logísticas y de distribución. Este informe analiza, con herramientas de **estadística descriptiva e inferencial**, una base de datos de eventos atmosféricos en Colombia para:
+ 
+# - describir el comportamiento de sus variables,
+# - contrastar hipótesis sobre medias y proporciones,
+# - evaluar normalidad y asociación entre variables cualitativas,
+# - comparar grupos y apoyar decisiones de gestión del riesgo y planificación de operaciones.
+ 
+# **Nivel de significancia.** En todo el trabajo se usa $\alpha = 0.05$. Regla de decisión: se rechaza $H_0$ cuando el estadístico cae en la región de rechazo, o equivalentemente cuando el valor-$p < \alpha$.
+ 
 ## ----paquetes-----------------------------------------------------------------------------------------------
 library(readxl)    # leer la base en Excel
 library(ggplot2)   # gráficos
@@ -44,11 +43,10 @@ f   <- function(x, d = 3) formatC(x, format = "f", digits = d)
 pf  <- function(p) ifelse(p < 0.0001, "< 0.0001", f(p, 4))
 dec <- function(p) ifelse(p < alpha, "se rechaza $H_0$", "no se rechaza $H_0$")
 
-#' 
-#' # Pregunta 1. Carga de la base de datos y clasificación de variables
-#' 
-#' La base se genera con el script `FENOMENOS_ATMOSFERICOS.R` suministrado. En ese script se **modificó el valor de `n`** (de 380 a **450** registros) para generar una base nueva; la semilla se mantiene (`set.seed(12345)`) para que los resultados sean reproducibles. Si se cambia `n`, todo este informe se recalcula automáticamente.
-#' 
+## Pregunta 1. Carga de la base de datos y clasificación de variables
+ 
+# La base se genera con el script `FENOMENOS_ATMOSFERICOS.R` suministrado. En ese script se **modificó el valor de `n`** (de 380 a **450** registros) para generar una base nueva; la semilla se mantiene (`set.seed(12345)`) para que los resultados sean reproducibles. Si se cambia `n`, todo este informe se recalcula automáticamente.
+
 ## ----carga--------------------------------------------------------------------------------------------------
 source("FENOMENOS_ATMOSFERICOS.R")        # genera Base_Fenomenos_Atmosfericos_Colombia.xlsx con el nuevo n
 rm(list = ls()[!(ls() %in% c("alpha", "f", "pf", "dec"))])   # limpia objetos auxiliares del generador
@@ -66,9 +64,8 @@ cuant <- c("Precipitacion_mm", "Velocidad_Viento_kmh", "Duracion_horas", "Temper
 str(datos)
 head(datos)
 
-#' 
-#' La base tiene **`r n` registros** y **`r ncol(datos)` variables**. Valores faltantes: **`r sum(is.na(datos))`**.
-#' 
+# La base tiene **`r n` registros** y **`r ncol(datos)` variables**. Valores faltantes: **`r sum(is.na(datos))`**.
+
 ## ----clasif, echo=FALSE-------------------------------------------------------------------------------------
 clasif <- data.frame(
   Variable = c("Tipo_Fenomeno", "Nivel_Intensidad", "Zona_Ocurrencia", "Nivel_Afectacion",
@@ -84,11 +81,11 @@ clasif <- data.frame(
                       "Razón (mm)", "Razón (km/h)", "Razón (horas)", "Intervalo (°C)", "Razón (conteo de municipios)"))
 kable(clasif, caption = "Clasificación de las variables según su naturaleza")
 
-#' 
-#' **Nota.** La temperatura es de escala de intervalo (el cero no es ausencia de temperatura); las demás cuantitativas son de razón.
-#' 
-#' # Pregunta 2. Análisis descriptivo de las variables cuantitativas
-#' 
+ 
+# **Nota.** La temperatura es de escala de intervalo (el cero no es ausencia de temperatura); las demás cuantitativas son de razón.
+ 
+## Pregunta 2. Análisis descriptivo de las variables cuantitativas
+
 ## ----descriptiva--------------------------------------------------------------------------------------------
 library(RcmdrMisc)   # numSummary: la misma función usada en las prácticas de clase
 
@@ -105,7 +102,7 @@ tab_desc <- cbind(Media = tt[, "mean"], Mediana = tt[, "50%"], Varianza = tt[, "
                   Min = tt[, "0%"], Max = tt[, "100%"], Asimetria = tt[, "skewness"])
 kable(round(tab_desc, 3), caption = "Resumen numérico de las variables cuantitativas")
 
-#' 
+ 
 ## ----graf-desc, fig.height=6.5------------------------------------------------------------------------------
 # Formato largo (se reutiliza en la pregunta 5)
 largo <- stack(datos[cuant])
@@ -125,7 +122,7 @@ par(mfrow = c(2, 3))
 for (v in cuant) boxplot(datos[[v]], horizontal = TRUE, main = v, xlab = v, col = "lightgreen")
 par(mfrow = c(1, 1))
 
-#' 
+
 ## ----graf-grupos, fig.height=4.5----------------------------------------------------------------------------
 # Comparaciones por grupos (diagramas de caja y dispersión)
 par(mfrow = c(1, 3))
@@ -138,12 +135,12 @@ plot(datos$Precipitacion_mm, datos$Duracion_horas, pch = 20, col = as.integer(da
 legend("topleft", legend = levels(datos$Nivel_Intensidad), col = 2:5, pch = 20, cex = 0.7, title = "Intensidad")
 par(mfrow = c(1, 1))
 
-#' 
+
 ## ----correl-------------------------------------------------------------------------------------------------
 R <- round(cor(datos[cuant]), 2)
 kable(R, caption = "Matriz de correlación de Pearson")
 
-#' 
+ 
 ## ----frecuencias-cual, fig.height=5-------------------------------------------------------------------------
 par(mfrow = c(1, 2))
 barplot(table(datos$Tipo_Fenomeno), col = "tomato", main = "Tipo de fenómeno", las = 2, cex.names = 0.7)
@@ -152,8 +149,7 @@ par(mfrow = c(1, 1))
 round(100 * prop.table(table(datos$Tipo_Fenomeno)), 1)
 round(100 * prop.table(table(datos$Zona_Ocurrencia)), 1)
 round(100 * prop.table(table(datos$Nivel_Afectacion)), 1)
-
-#' 
+ 
 ## ----patrones-calc, include=FALSE---------------------------------------------------------------------------
 cv      <- tab_desc[, "CV_pct"]
 v_cvmax <- names(which.max(cv)); v_cvmin <- names(which.min(cv))
@@ -162,20 +158,20 @@ idx <- which(abs(Rup) == max(abs(Rup), na.rm = TRUE), arr.ind = TRUE)[1, ]
 par_fuerte <- c(rownames(Rup)[idx[1]], colnames(Rup)[idx[2]]); r_fuerte <- Rup[idx[1], idx[2]]
 mz <- tapply(datos$Temperatura_C, datos$Zona_Ocurrencia, mean)
 
-#' 
-#' **Interpretación y patrones relevantes**
-#' 
-#' - **Tendencia central y forma.** Para cada variable, la media y la mediana son cercanas (ver tabla), lo que indica distribuciones aproximadamente simétricas; el coeficiente de asimetría ($|g_1| \le$ `r f(ceiling(100 * max(abs(tab_desc[, "Asimetria"]))) / 100, 2)` en todas) confirma que no hay sesgos fuertes. Los histogramas muestran formas unimodales.
-#' - **Variabilidad.** La variable con mayor variabilidad relativa es **`r v_cvmax`** (CV = `r f(cv[v_cvmax], 1)`%) y la de menor es **`r v_cvmin`** (CV = `r f(cv[v_cvmin], 1)`%). Un CV por debajo de 15% indica datos homogéneos; entre 15% y 30%, variabilidad moderada; por encima de 30%, alta variabilidad.
-#' - **Valores atípicos.** Los diagramas de caja muestran pocos puntos fuera de los bigotes, que corresponden a eventos extremos y no a errores de digitación.
-#' - **Relaciones entre variables.** La correlación lineal más fuerte es entre **`r par_fuerte[1]`** y **`r par_fuerte[2]`** ($r$ = `r f(r_fuerte, 2)`): los eventos con mayor precipitación tienden a durar más y a afectar más municipios. La temperatura tiene correlaciones débiles con las demás variables.
-#' - **Patrón por zona.** La temperatura media es más alta en zona costera (`r f(mz["Costera"], 1)` °C) y más baja en zona montañosa (`r f(mz["Montañosa"], 1)` °C), lo cual es coherente con la geografía colombiana.
-#' - **Variables cualitativas.** La lluvia intensa y la tormenta eléctrica son los fenómenos más frecuentes; la mayoría de los eventos tienen afectación media.
-#' 
-#' # Pregunta 3. Pruebas de hipótesis sobre la media poblacional
-#' 
-#' Como la desviación estándar poblacional es desconocida, se usa el estadístico $T = \dfrac{\bar X - \mu_0}{S/\sqrt{n}} \sim t_{n-1}$ (con $n$ grande la $t$ se aproxima a la normal). Como se hizo en clase, la afirmación que se quiere probar se plantea como hipótesis alterna $H_1$, y la hipótesis nula $H_0$ es su complemento (el estadístico se calcula en el valor frontera $\mu_0$). Se definen las funciones que calculan todos los pasos y se verifican con `t.test()`.
-#' 
+ 
+# **Interpretación y patrones relevantes**
+# 
+#  - **Tendencia central y forma.** Para cada variable, la media y la mediana son cercanas (ver tabla), lo que indica distribuciones aproximadamente simétricas; el coeficiente de asimetría ($|g_1| \le$ `r f(ceiling(100 * max(abs(tab_desc[, "Asimetria"]))) / 100, 2)` en todas) confirma que no hay sesgos fuertes. Los histogramas muestran formas unimodales.
+#  - **Variabilidad.** La variable con mayor variabilidad relativa es **`r v_cvmax`** (CV = `r f(cv[v_cvmax], 1)`%) y la de menor es **`r v_cvmin`** (CV = `r f(cv[v_cvmin], 1)`%). Un CV por debajo de 15% indica datos homogéneos; entre 15% y 30%, variabilidad moderada; por encima de 30%, alta variabilidad.
+#  - **Valores atípicos.** Los diagramas de caja muestran pocos puntos fuera de los bigotes, que corresponden a eventos extremos y no a errores de digitación.
+#  - **Relaciones entre variables.** La correlación lineal más fuerte es entre **`r par_fuerte[1]`** y **`r par_fuerte[2]`** ($r$ = `r f(r_fuerte, 2)`): los eventos con mayor precipitación tienden a durar más y a afectar más municipios. La temperatura tiene correlaciones débiles con las demás variables.
+#  - **Patrón por zona.** La temperatura media es más alta en zona costera (`r f(mz["Costera"], 1)` °C) y más baja en zona montañosa (`r f(mz["Montañosa"], 1)` °C), lo cual es coherente con la geografía colombiana.
+#  - **Variables cualitativas.** La lluvia intensa y la tormenta eléctrica son los fenómenos más frecuentes; la mayoría de los eventos tienen afectación media.
+ 
+## Pregunta 3. Pruebas de hipótesis sobre la media poblacional
+
+# Como la desviación estándar poblacional es desconocida, se usa el estadístico $T = \dfrac{\bar X - \mu_0}{S/\sqrt{n}} \sim t_{n-1}$ (con $n$ grande la $t$ se aproxima a la normal). Como se hizo en clase, la afirmación que se quiere probar se plantea como hipótesis alterna $H_1$, y la hipótesis nula $H_0$ es su complemento (el estadístico se calcula en el valor frontera $\mu_0$). Se definen las funciones que calculan todos los pasos y se verifican con `t.test()`.
+ 
 ## ----fun-media----------------------------------------------------------------------------------------------
 ph_media <- function(x, mu0, alt = c("two.sided", "greater", "less"), alpha = 0.05) {
   alt <- match.arg(alt)
@@ -188,55 +184,55 @@ ph_media <- function(x, mu0, alt = c("two.sided", "greater", "less"), alpha = 0.
   list(n = n, xb = xb, s = s, gl = gl, est = est, crit = crit, p = p, rech = rech, ic = ic)
 }
 
-#' 
-#' ## Pregunta de investigación 3.1: duración de los eventos
-#' 
-#' *¿La duración promedio de los eventos atmosféricos es mayor a 2.5 horas?*
-#' 
-#' **Hipótesis:**
-#' 
-#' $$H_0: \mu \le 2.5 \qquad \text{vs} \qquad H_1: \mu > 2.5$$
-#' 
+
+### Pregunta de investigación 3.1: duración de los eventos
+
+# *¿La duración promedio de los eventos atmosféricos es mayor a 2.5 horas?*
+
+# **Hipótesis:**
+
+# $$H_0: \mu \le 2.5 \qquad \text{vs} \qquad H_1: \mu > 2.5$$
+
 ## ----media1-------------------------------------------------------------------------------------------------
 r1 <- ph_media(datos$Duracion_horas, mu0 = 2.5, alt = "greater")
 unlist(r1[c("n", "xb", "s", "est", "crit", "p")])
 t.test(datos$Duracion_horas, mu = 2.5, alternative = "greater")   # verificación
 
-#' 
-#' - Datos: $n =$ `r r1$n`, $\bar x =$ `r f(r1$xb)` h, $s =$ `r f(r1$s)` h, $\mu_0 = 2.5$, $\alpha = 0.05$.
-#' - Estadístico: $T_c = \dfrac{`r f(r1$xb)` - 2.5}{`r f(r1$s)`/\sqrt{`r r1$n`}} =$ **`r f(r1$est)`**.
-#' - Valor crítico: $t_{`r r1$gl`;\,0.95} =$ **`r f(r1$crit)`** (se rechaza si $T_c > t_{crit}$).
-#' - Valor-$p$ = `r pf(r1$p)`.
-#' - **Decisión:** como $T_c$ `r ifelse(r1$rech, "es mayor", "no es mayor")` que el valor crítico, `r dec(r1$p)`.
-#' - **Conclusión:** `r ifelse(r1$rech, "con un nivel de significancia del 5% hay evidencia estadística suficiente para afirmar que la duración promedio de los eventos es mayor a 2.5 horas. Operativamente, la planificación debe asumir interrupciones superiores a ese tiempo.", "con un nivel de significancia del 5% no hay evidencia suficiente para afirmar que la duración promedio sea mayor a 2.5 horas.")`
-#' - **Implicación para la operación:** `r ifelse(r1$rech, paste0("las interrupciones duran en promedio más de lo previsto (", f(r1$xb, 2), " h); los turnos, rutas y despachos deben programarse con holguras de al menos esa duración."), "no se justifica ampliar la ventana de contingencia de 2.5 h; se puede mantener la planificación actual.")`
-#' 
-#' ## Pregunta de investigación 3.2: temperatura de los eventos
-#' 
-#' *¿La temperatura promedio de los eventos atmosféricos es diferente de 21 °C?*
-#' 
-#' **Hipótesis:**
-#' 
-#' $$H_0: \mu = 21 \qquad \text{vs} \qquad H_1: \mu \neq 21$$
-#' 
+
+# - Datos: $n =$ `r r1$n`, $\bar x =$ `r f(r1$xb)` h, $s =$ `r f(r1$s)` h, $\mu_0 = 2.5$, $\alpha = 0.05$.
+# - Estadístico: $T_c = \dfrac{`r f(r1$xb)` - 2.5}{`r f(r1$s)`/\sqrt{`r r1$n`}} =$ **`r f(r1$est)`**.
+# - Valor crítico: $t_{`r r1$gl`;\,0.95} =$ **`r f(r1$crit)`** (se rechaza si $T_c > t_{crit}$).
+# - Valor-$p$ = `r pf(r1$p)`.
+# - **Decisión:** como $T_c$ `r ifelse(r1$rech, "es mayor", "no es mayor")` que el valor crítico, `r dec(r1$p)`.
+# - **Conclusión:** `r ifelse(r1$rech, "con un nivel de significancia del 5% hay evidencia estadística suficiente para afirmar que la duración promedio de los eventos es mayor a 2.5 horas. Operativamente, la planificación debe asumir interrupciones superiores a ese tiempo.", "con un nivel de significancia del 5% no hay evidencia suficiente para afirmar que la duración promedio sea mayor a 2.5 horas.")`
+# - **Implicación para la operación:** `r ifelse(r1$rech, paste0("las interrupciones duran en promedio más de lo previsto (", f(r1$xb, 2), " h); los turnos, rutas y despachos deben programarse con holguras de al menos esa duración."), "no se justifica ampliar la ventana de contingencia de 2.5 h; se puede mantener la planificación actual.")`
+ 
+### Pregunta de investigación 3.2: temperatura de los eventos
+ 
+# *¿La temperatura promedio de los eventos atmosféricos es diferente de 21 °C?*
+ 
+# **Hipótesis:**
+ 
+# $$H_0: \mu = 21 \qquad \text{vs} \qquad H_1: \mu \neq 21$$
+ 
 ## ----media2-------------------------------------------------------------------------------------------------
 r2 <- ph_media(datos$Temperatura_C, mu0 = 21, alt = "two.sided")
 unlist(r2[c("n", "xb", "s", "est", "crit", "p")])
 t.test(datos$Temperatura_C, mu = 21)   # verificación
 
-#' 
-#' - Datos: $n =$ `r r2$n`, $\bar x =$ `r f(r2$xb)` °C, $s =$ `r f(r2$s)` °C, $\mu_0 = 21$.
-#' - Estadístico: $T_c = \dfrac{`r f(r2$xb)` - 21}{`r f(r2$s)`/\sqrt{`r r2$n`}} =$ **`r f(r2$est)`**.
-#' - Valor crítico: $\pm t_{`r r2$gl`;\,0.975} = \pm$ **`r f(r2$crit)`**.
-#' - Valor-$p$ = `r pf(r2$p)`. IC del 95% para $\mu$: (`r f(r2$ic[1])`, `r f(r2$ic[2])`).
-#' - **Decisión:** como $|T_c|$ `r ifelse(r2$rech, "es mayor", "no es mayor")` que el valor crítico, `r dec(r2$p)`.
-#' - **Conclusión:** `r ifelse(r2$rech, "con un nivel de significancia del 5% hay evidencia de que la temperatura promedio de los eventos difiere de 21 °C.", "con un nivel de significancia del 5% no hay evidencia suficiente para afirmar que la temperatura promedio sea diferente de 21 °C; el valor 21 °C queda dentro del intervalo de confianza.")`
-#' - **Implicación para la operación:** `r ifelse(r2$rech, "las condiciones térmicas típicas de los eventos difieren de 21 °C y deben considerarse en el almacenamiento y transporte de producto sensible a la temperatura.", "no se requieren ajustes especiales por temperatura en la planificación: 21 °C es una referencia razonable para los eventos.")`
-#' 
-#' # Pregunta 4. Pruebas de hipótesis sobre proporciones
-#' 
-#' Estadístico: $Z = \dfrac{\hat P - \pi_0}{\sqrt{\pi_0(1-\pi_0)/n}} \approx N(0,1)$, válido si $n\pi_0 \ge 10$ y $n(1-\pi_0) \ge 10$.
-#' 
+# 
+# - Datos: $n =$ `r r2$n`, $\bar x =$ `r f(r2$xb)` °C, $s =$ `r f(r2$s)` °C, $\mu_0 = 21$.
+# - Estadístico: $T_c = \dfrac{`r f(r2$xb)` - 21}{`r f(r2$s)`/\sqrt{`r r2$n`}} =$ **`r f(r2$est)`**.
+# - Valor crítico: $\pm t_{`r r2$gl`;\,0.975} = \pm$ **`r f(r2$crit)`**.
+# - Valor-$p$ = `r pf(r2$p)`. IC del 95% para $\mu$: (`r f(r2$ic[1])`, `r f(r2$ic[2])`).
+# - **Decisión:** como $|T_c|$ `r ifelse(r2$rech, "es mayor", "no es mayor")` que el valor crítico, `r dec(r2$p)`.
+# - **Conclusión:** `r ifelse(r2$rech, "con un nivel de significancia del 5% hay evidencia de que la temperatura promedio de los eventos difiere de 21 °C.", "con un nivel de significancia del 5% no hay evidencia suficiente para afirmar que la temperatura promedio sea diferente de 21 °C; el valor 21 °C queda dentro del intervalo de confianza.")`
+# - **Implicación para la operación:** `r ifelse(r2$rech, "las condiciones térmicas típicas de los eventos difieren de 21 °C y deben considerarse en el almacenamiento y transporte de producto sensible a la temperatura.", "no se requieren ajustes especiales por temperatura en la planificación: 21 °C es una referencia razonable para los eventos.")`
+ 
+## Pregunta 4. Pruebas de hipótesis sobre proporciones
+ 
+# Estadístico: $Z = \dfrac{\hat P - \pi_0}{\sqrt{\pi_0(1-\pi_0)/n}} \approx N(0,1)$, válido si $n\pi_0 \ge 10$ y $n(1-\pi_0) \ge 10$.
+ 
 ## ----fun-prop-----------------------------------------------------------------------------------------------
 ph_prop <- function(x, n, p0, alt = c("two.sided", "greater", "less"), alpha = 0.05) {
   alt <- match.arg(alt)
@@ -249,59 +245,59 @@ ph_prop <- function(x, n, p0, alt = c("two.sided", "greater", "less"), alpha = 0
        cond = c(n * p0, n * (1 - p0)))
 }
 
-#' 
-#' ## Pregunta de investigación 4.1: proporción de granizadas
-#' 
-#' *¿La proporción de eventos que corresponden a granizadas es menor al 20%?*
-#' 
-#' $$H_0: \pi \ge 0.20 \qquad \text{vs} \qquad H_1: \pi < 0.20$$
-#' 
+
+### Pregunta de investigación 4.1: proporción de granizadas
+ 
+# *¿La proporción de eventos que corresponden a granizadas es menor al 20%?*
+ 
+# $$H_0: \pi \ge 0.20 \qquad \text{vs} \qquad H_1: \pi < 0.20$$
+ 
 ## ----prop1--------------------------------------------------------------------------------------------------
 x_g <- sum(datos$Tipo_Fenomeno == "Granizada")
 p1  <- ph_prop(x_g, n, 0.20, "less")
 unlist(p1[c("x", "n", "ph", "est", "crit", "p")])
 prop.test(x_g, n, p = 0.20, alternative = "less", correct = FALSE)   # verificación
 
-#' 
-#' - Condiciones: $n\pi_0 =$ `r f(p1$cond[1], 1)` $\ge 10$ y $n(1-\pi_0) =$ `r f(p1$cond[2], 1)` $\ge 10$ `r ifelse(all(p1$cond >= 10), "(se cumplen)", "(NO se cumplen)")`.
-#' - Datos: `r p1$x` granizadas de `r p1$n` eventos, $\hat p =$ `r f(p1$ph, 4)`.
-#' - Estadístico: $Z_c = \dfrac{`r f(p1$ph, 4)` - 0.20}{\sqrt{0.20 \cdot 0.80/`r p1$n`}} =$ **`r f(p1$est)`**.
-#' - Valor crítico: $-z_{0.95} =$ **`r f(p1$crit)`** (se rechaza si $Z_c < -z_{0.95}$). Valor-$p$ = `r pf(p1$p)`.
-#' - **Decisión:** `r dec(p1$p)`.
-#' - **Conclusión:** `r ifelse(p1$rech, "con un nivel de significancia del 5% hay evidencia de que la proporción de granizadas es menor al 20% del total de eventos.", "con un nivel de significancia del 5% no hay evidencia suficiente para afirmar que la proporción de granizadas sea menor al 20%.")`
-#' - **Implicación para la operación:** `r ifelse(p1$rech, "las granizadas son un riesgo comparativamente poco frecuente: los recursos de contingencia pueden priorizarse en los fenómenos más recurrentes, manteniendo protección básica de vehículos y producto.", "no hay base para restar prioridad a las granizadas en los planes de contingencia.")`
-#' 
-#' ## Pregunta de investigación 4.2: proporción de eventos con afectación alta
-#' 
-#' *¿La proporción de eventos con nivel de afectación Alto es diferente de 25%?*
-#' 
-#' $$H_0: \pi = 0.25 \qquad \text{vs} \qquad H_1: \pi \neq 0.25$$
-#' 
+ 
+# - Condiciones: $n\pi_0 =$ `r f(p1$cond[1], 1)` $\ge 10$ y $n(1-\pi_0) =$ `r f(p1$cond[2], 1)` $\ge 10$ `r ifelse(all(p1$cond >= 10), "(se cumplen)", "(NO se cumplen)")`.
+# - Datos: `r p1$x` granizadas de `r p1$n` eventos, $\hat p =$ `r f(p1$ph, 4)`.
+# - Estadístico: $Z_c = \dfrac{`r f(p1$ph, 4)` - 0.20}{\sqrt{0.20 \cdot 0.80/`r p1$n`}} =$ **`r f(p1$est)`**.
+# - Valor crítico: $-z_{0.95} =$ **`r f(p1$crit)`** (se rechaza si $Z_c < -z_{0.95}$). Valor-$p$ = `r pf(p1$p)`.
+# - **Decisión:** `r dec(p1$p)`.
+# - **Conclusión:** `r ifelse(p1$rech, "con un nivel de significancia del 5% hay evidencia de que la proporción de granizadas es menor al 20% del total de eventos.", "con un nivel de significancia del 5% no hay evidencia suficiente para afirmar que la proporción de granizadas sea menor al 20%.")`
+# - **Implicación para la operación:** `r ifelse(p1$rech, "las granizadas son un riesgo comparativamente poco frecuente: los recursos de contingencia pueden priorizarse en los fenómenos más recurrentes, manteniendo protección básica de vehículos y producto.", "no hay base para restar prioridad a las granizadas en los planes de contingencia.")`
+ 
+### Pregunta de investigación 4.2: proporción de eventos con afectación alta
+ 
+# *¿La proporción de eventos con nivel de afectación Alto es diferente de 25%?*
+ 
+# $$H_0: \pi = 0.25 \qquad \text{vs} \qquad H_1: \pi \neq 0.25$$
+ 
 ## ----prop2--------------------------------------------------------------------------------------------------
 x_a <- sum(datos$Nivel_Afectacion == "Alto")
 p2  <- ph_prop(x_a, n, 0.25, "two.sided")
 unlist(p2[c("x", "n", "ph", "est", "crit", "p")])
 prop.test(x_a, n, p = 0.25, correct = FALSE)   # verificación
 
-#' 
-#' - Condiciones: $n\pi_0 =$ `r f(p2$cond[1], 1)` y $n(1-\pi_0) =$ `r f(p2$cond[2], 1)`, ambos $\ge 10$ `r ifelse(all(p2$cond >= 10), "(se cumplen)", "(NO se cumplen)")`.
-#' - Datos: `r p2$x` eventos de afectación alta de `r p2$n`, $\hat p =$ `r f(p2$ph, 4)`.
-#' - Estadístico: $Z_c = \dfrac{`r f(p2$ph, 4)` - 0.25}{\sqrt{0.25 \cdot 0.75/`r p2$n`}} =$ **`r f(p2$est)`**.
-#' - Valor crítico: $\pm z_{0.975} = \pm$ **`r f(p2$crit)`**. Valor-$p$ = `r pf(p2$p)`.
-#' - **Decisión:** `r dec(p2$p)`.
-#' - **Conclusión:** `r ifelse(p2$rech, "con un nivel de significancia del 5% hay evidencia de que la proporción de eventos con afectación alta difiere de 25%.", "con un nivel de significancia del 5% no hay evidencia suficiente para afirmar que la proporción de eventos con afectación alta sea diferente de 25%; es compatible con que aproximadamente uno de cada cuatro eventos tenga afectación alta.")`
-#' - **Implicación para la operación:** `r ifelse(p2$rech, "la frecuencia de afectación alta difiere de la usada como referencia; los planes de riesgo deben recalibrarse con la proporción observada.", "la referencia de 25% de eventos con afectación alta es razonable para dimensionar recursos de emergencia y contingencia logística.")`
-#' 
-#' # Pregunta 5. Pruebas de normalidad
-#' 
-#' Para cada variable cuantitativa se plantea:
-#' 
-#' $$H_0: \text{la variable sigue una distribución normal} \qquad \text{vs} \qquad H_1: \text{la variable no sigue una distribución normal}$$
-#' 
-#' **Criterio de decisión:** se rechaza $H_0$ si valor-$p < \alpha = 0.05$. En las pruebas de normalidad se desea **no** rechazar $H_0$.
-#' 
-#' **Pruebas utilizadas.** Como la base es grande ($n =$ `r n`), la prueba principal es **Anderson-Darling** (`nortest::ad.test`). Shapiro-Wilk se recomienda para muestras pequeñas (unos 60 datos o menos), por lo que aquí solo se usa como apoyo, junto con **Jarque-Bera** (`tseries::jarque.bera.test`, que usa la asimetría y la curtosis) y **Lilliefors** (Kolmogorov-Smirnov corregida). La verificación gráfica se hace con el **gráfico cuantil-cuantil (Q-Q)**: si los puntos siguen la recta y se mantienen dentro de las bandas de confianza, hay normalidad.
-#' 
+ 
+# - Condiciones: $n\pi_0 =$ `r f(p2$cond[1], 1)` y $n(1-\pi_0) =$ `r f(p2$cond[2], 1)`, ambos $\ge 10$ `r ifelse(all(p2$cond >= 10), "(se cumplen)", "(NO se cumplen)")`.
+# - Datos: `r p2$x` eventos de afectación alta de `r p2$n`, $\hat p =$ `r f(p2$ph, 4)`.
+# - Estadístico: $Z_c = \dfrac{`r f(p2$ph, 4)` - 0.25}{\sqrt{0.25 \cdot 0.75/`r p2$n`}} =$ **`r f(p2$est)`**.
+# - Valor crítico: $\pm z_{0.975} = \pm$ **`r f(p2$crit)`**. Valor-$p$ = `r pf(p2$p)`.
+# - **Decisión:** `r dec(p2$p)`.
+# - **Conclusión:** `r ifelse(p2$rech, "con un nivel de significancia del 5% hay evidencia de que la proporción de eventos con afectación alta difiere de 25%.", "con un nivel de significancia del 5% no hay evidencia suficiente para afirmar que la proporción de eventos con afectación alta sea diferente de 25%; es compatible con que aproximadamente uno de cada cuatro eventos tenga afectación alta.")`
+# - **Implicación para la operación:** `r ifelse(p2$rech, "la frecuencia de afectación alta difiere de la usada como referencia; los planes de riesgo deben recalibrarse con la proporción observada.", "la referencia de 25% de eventos con afectación alta es razonable para dimensionar recursos de emergencia y contingencia logística.")`
+ 
+## Pregunta 5. Pruebas de normalidad
+ 
+# Para cada variable cuantitativa se plantea:
+ 
+# $$H_0: \text{la variable sigue una distribución normal} \qquad \text{vs} \qquad H_1: \text{la variable no sigue una distribución normal}$$
+# 
+# **Criterio de decisión:** se rechaza $H_0$ si valor-$p < \alpha = 0.05$. En las pruebas de normalidad se desea **no** rechazar $H_0$.
+ 
+# **Pruebas utilizadas.** Como la base es grande ($n =$ `r n`), la prueba principal es **Anderson-Darling** (`nortest::ad.test`). Shapiro-Wilk se recomienda para muestras pequeñas (unos 60 datos o menos), por lo que aquí solo se usa como apoyo, junto con **Jarque-Bera** (`tseries::jarque.bera.test`, que usa la asimetría y la curtosis) y **Lilliefors** (Kolmogorov-Smirnov corregida). La verificación gráfica se hace con el **gráfico cuantil-cuantil (Q-Q)**: si los puntos siguen la recta y se mantienen dentro de las bandas de confianza, hay normalidad.
+ 
 ## ----normalidad---------------------------------------------------------------------------------------------
 library(tseries)   # Jarque-Bera
 
@@ -330,7 +326,7 @@ ta <- norm_tab[, c("Variable", "p_JarqueBera", "p_Lilliefors", "p_Shapiro", "Asi
 ta[, -1] <- lapply(ta[, -1], function(z) round(z, 4))
 kable(ta, row.names = FALSE, caption = "Pruebas de apoyo (valores-p) y medidas de forma")
 
-#' 
+# 
 ## ----normalidad-qq, fig.height=7----------------------------------------------------------------------------
 # Gráficos cuantil-cuantil con bandas de confianza (paquete car)
 par(mfrow = c(2, 3))
@@ -340,7 +336,7 @@ for (v in cuant) {
 }
 par(mfrow = c(1, 1))
 
-#' 
+ 
 ## ----normalidad-hist, fig.height=6.5------------------------------------------------------------------------
 # Histograma con curva normal teórica
 curvas <- do.call(rbind, lapply(cuant, function(v) {
@@ -353,7 +349,7 @@ ggplot(largo, aes(valor)) +
   facet_wrap(~variable, scales = "free") +
   labs(title = "Histogramas con curva normal teórica", x = NULL, y = "Densidad") + theme_minimal()
 
-#' 
+ 
 ## ----normalidad-texto, results='asis', echo=FALSE-----------------------------------------------------------
 for (i in seq_len(nrow(norm_tab))) {
   r <- norm_tab[i, ]
@@ -365,15 +361,15 @@ for (i in seq_len(nrow(norm_tab))) {
       ifelse(r$Otras_discrepan, " *Resultado límite: alguna de las pruebas de apoyo llega a una decisión distinta; apóyese en el gráfico Q-Q.*", ""), "\n", sep = "")
 }
 
-#' 
-#' **Interpretación en el contexto del estudio.** Las variables `r paste(norm_tab$Variable[norm_tab$Conclusion == "Compatible con normal"], collapse = ", ")` pueden tratarse como normales, de modo que las pruebas $t$ sobre sus medias (preguntas 3 y 7) tienen respaldo directo. Las variables `r paste(norm_tab$Variable[norm_tab$Conclusion == "No normal"], collapse = ", ")` se apartan de la normalidad (curtosis en exceso negativa: distribuciones más "planas" que la normal, sin sesgo marcado). Aun así, con $n =$ `r n` el teorema del límite central hace que la distribución de $\bar X$ sea aproximadamente normal, por lo que las inferencias sobre medias siguen siendo razonables; si se quisiera evitar el supuesto, habría que recurrir a pruebas no paramétricas. Para la operación, esto significa que variables como los municipios afectados no deben modelarse con una normal al estimar probabilidades de eventos extremos.
-#' 
-#' # Pregunta 6. Prueba Chi-cuadrado de independencia
-#' 
-#' **Pregunta de investigación:** *¿Existe asociación entre el tipo de fenómeno atmosférico y el nivel de afectación?*
-#' 
-#' $$H_0: \text{el tipo de fenómeno y el nivel de afectación son independientes} \qquad \text{vs} \qquad H_1: \text{existe asociación entre ambas variables}$$
-#' 
+ 
+# **Interpretación en el contexto del estudio.** Las variables `r paste(norm_tab$Variable[norm_tab$Conclusion == "Compatible con normal"], collapse = ", ")` pueden tratarse como normales, de modo que las pruebas $t$ sobre sus medias (preguntas 3 y 7) tienen respaldo directo. Las variables `r paste(norm_tab$Variable[norm_tab$Conclusion == "No normal"], collapse = ", ")` se apartan de la normalidad (curtosis en exceso negativa: distribuciones más "planas" que la normal, sin sesgo marcado). Aun así, con $n =$ `r n` el teorema del límite central hace que la distribución de $\bar X$ sea aproximadamente normal, por lo que las inferencias sobre medias siguen siendo razonables; si se quisiera evitar el supuesto, habría que recurrir a pruebas no paramétricas. Para la operación, esto significa que variables como los municipios afectados no deben modelarse con una normal al estimar probabilidades de eventos extremos.
+ 
+## Pregunta 6. Prueba Chi-cuadrado de independencia
+ 
+# **Pregunta de investigación:** *¿Existe asociación entre el tipo de fenómeno atmosférico y el nivel de afectación?*
+ 
+# $$H_0: \text{el tipo de fenómeno y el nivel de afectación son independientes} \qquad \text{vs} \qquad H_1: \text{existe asociación entre ambas variables}$$
+ 
 ## ----chi----------------------------------------------------------------------------------------------------
 tabla <- table(datos$Tipo_Fenomeno, datos$Nivel_Afectacion)
 kable(addmargins(tabla), caption = "Tabla de contingencia: tipo de fenómeno vs nivel de afectación (frecuencias observadas)")
@@ -383,9 +379,9 @@ chi  <- chisq.test(tabla, correct = FALSE)
 Esp  <- chi$expected
 kable(round(Esp, 2), caption = "Frecuencias esperadas bajo independencia")
 
-#' 
-#' **Verificación de supuestos.** Todas las frecuencias esperadas deben ser $\ge 5$ (o al menos el 80% de ellas, sin ninguna menor que 1). Mínima frecuencia esperada: **`r f(min(Esp), 2)`**; celdas con esperada $< 5$: **`r sum(Esp < 5)`** de `r length(Esp)`. `r ifelse(all(Esp >= 5), "El supuesto se cumple.", "El supuesto NO se cumple por completo; considerar agrupar categorías.")` Además, las observaciones son independientes (cada fila de la base es un evento distinto).
-#' 
+ 
+# **Verificación de supuestos.** Todas las frecuencias esperadas deben ser $\ge 5$ (o al menos el 80% de ellas, sin ninguna menor que 1). Mínima frecuencia esperada: **`r f(min(Esp), 2)`**; celdas con esperada $< 5$: **`r sum(Esp < 5)`** de `r length(Esp)`. `r ifelse(all(Esp >= 5), "El supuesto se cumple.", "El supuesto NO se cumple por completo; considerar agrupar categorías.")` Además, las observaciones son independientes (cada fila de la base es un evento distinto).
+ 
 ## ----chi-calc-----------------------------------------------------------------------------------------------
 chi_manual <- sum((tabla - Esp)^2 / Esp)           # estadístico calculado a mano
 gl_chi  <- (nrow(tabla) - 1) * (ncol(tabla) - 1)
@@ -396,12 +392,12 @@ c(chi2 = chi_manual, gl = gl_chi, critico = crit_chi, p = p_chi, Cramer_V = V)
 chi    # verificación con chisq.test
 kable(round(chi$stdres, 2), caption = "Residuos estandarizados (|valor| > 2 indica celdas que más contribuyen a la asociación)")
 
-#' 
-#' - Estadístico: $\chi^2_c = \sum \dfrac{(O-E)^2}{E} =$ **`r f(chi_manual, 2)`** con $gl = (4-1)(3-1) =$ `r gl_chi`.
-#' - Valor crítico: $\chi^2_{`r gl_chi`;\,0.95} =$ **`r f(crit_chi, 2)`**. Valor-$p$ = `r pf(p_chi)`.
-#' - **Decisión:** como $\chi^2_c$ `r ifelse(chi_manual > crit_chi, "es mayor", "no es mayor")` que el valor crítico, `r dec(p_chi)`.
-#' - Intensidad de la asociación: $V$ de Cramér = `r f(V, 3)` (`r ifelse(V < 0.1, "asociación muy débil", ifelse(V < 0.3, "asociación débil a moderada", "asociación moderada a fuerte"))`).
-#' 
+ 
+# - Estadístico: $\chi^2_c = \sum \dfrac{(O-E)^2}{E} =$ **`r f(chi_manual, 2)`** con $gl = (4-1)(3-1) =$ `r gl_chi`.
+# - Valor crítico: $\chi^2_{`r gl_chi`;\,0.95} =$ **`r f(crit_chi, 2)`**. Valor-$p$ = `r pf(p_chi)`.
+# - **Decisión:** como $\chi^2_c$ `r ifelse(chi_manual > crit_chi, "es mayor", "no es mayor")` que el valor crítico, `r dec(p_chi)`.
+# - Intensidad de la asociación: $V$ de Cramér = `r f(V, 3)` (`r ifelse(V < 0.1, "asociación muy débil", ifelse(V < 0.3, "asociación débil a moderada", "asociación moderada a fuerte"))`).
+ 
 ## ----chi-graf, echo=FALSE-----------------------------------------------------------------------------------
 dfc <- as.data.frame(prop.table(tabla, margin = 1))
 names(dfc) <- c("Tipo", "Afectacion", "Prop")
@@ -411,23 +407,23 @@ ggplot(dfc, aes(Tipo, Prop, fill = Afectacion)) +
   labs(title = "Nivel de afectación según tipo de fenómeno", x = NULL, y = "Porcentaje dentro del tipo", fill = "Afectación") +
   theme_minimal()
 
-#' 
+ 
 ## ----chi-resid, include=FALSE-------------------------------------------------------------------------------
 rs <- chi$stdres
 celda <- which(abs(rs) == max(abs(rs)), arr.ind = TRUE)[1, ]
 cel_txt <- paste0(rownames(rs)[celda[1]], " con afectación ", colnames(rs)[celda[2]])
 
-#' 
-#' **Conclusión en contexto.** `r ifelse(p_chi < alpha, paste0("Con un nivel de significancia del 5% hay evidencia de asociación entre el tipo de fenómeno y el nivel de afectación: la gravedad del impacto depende del tipo de evento. La celda que más se aparta de la independencia es **", cel_txt, "** (residuo estandarizado = ", f(rs[celda[1], celda[2]], 2), ")."), "Con un nivel de significancia del 5% no hay evidencia de asociación entre el tipo de fenómeno y el nivel de afectación.")`
-#' 
-#' **Implicación para la operación:** `r ifelse(p_chi < alpha, "los planes de contingencia deben diferenciarse por tipo de fenómeno, asignando más recursos y protocolos más estrictos a los tipos con mayor proporción de afectación alta.", "un único plan de contingencia general sería suficiente para todos los tipos de fenómeno.")`
-#' 
-#' # Pregunta 7. Comparación de medias entre dos grupos
-#' 
-#' **Pregunta de investigación:** *¿La temperatura promedio de los eventos que ocurren en zona costera es diferente de la de los eventos en zona montañosa?*
-#' 
-#' $$H_0: \mu_{C} = \mu_{M} \qquad \text{vs} \qquad H_1: \mu_{C} \neq \mu_{M}$$
-#' 
+ 
+# **Conclusión en contexto.** `r ifelse(p_chi < alpha, paste0("Con un nivel de significancia del 5% hay evidencia de asociación entre el tipo de fenómeno y el nivel de afectación: la gravedad del impacto depende del tipo de evento. La celda que más se aparta de la independencia es **", cel_txt, "** (residuo estandarizado = ", f(rs[celda[1], celda[2]], 2), ")."), "Con un nivel de significancia del 5% no hay evidencia de asociación entre el tipo de fenómeno y el nivel de afectación.")`
+ 
+# **Implicación para la operación:** `r ifelse(p_chi < alpha, "los planes de contingencia deben diferenciarse por tipo de fenómeno, asignando más recursos y protocolos más estrictos a los tipos con mayor proporción de afectación alta.", "un único plan de contingencia general sería suficiente para todos los tipos de fenómeno.")`
+
+## Pregunta 7. Comparación de medias entre dos grupos
+
+# **Pregunta de investigación:** *¿La temperatura promedio de los eventos que ocurren en zona costera es diferente de la de los eventos en zona montañosa?*
+ 
+# $$H_0: \mu_{C} = \mu_{M} \qquad \text{vs} \qquad H_1: \mu_{C} \neq \mu_{M}$$
+ 
 ## ----grupos-t-----------------------------------------------------------------------------------------------
 g1 <- datos$Temperatura_C[datos$Zona_Ocurrencia == "Costera"]
 g2 <- datos$Temperatura_C[datos$Zona_Ocurrencia == "Montañosa"]
@@ -436,13 +432,13 @@ kable(data.frame(Zona = c("Costera", "Montañosa"), n = c(length(g1), length(g2)
                  Media = c(mean(g1), mean(g2)), Desv_Est = c(sd(g1), sd(g2)), Varianza = c(var(g1), var(g2))),
       digits = 3, caption = "Resumen de la temperatura por zona")
 
-#' 
-#' ## Supuestos
-#' 
-#' **Normalidad en cada grupo** (Shapiro-Wilk): Costera p = `r pf(shapiro.test(g1)$p.value)`; Montañosa p = `r pf(shapiro.test(g2)$p.value)`.
-#' 
-#' **Igualdad de varianzas.** Se contrasta $H_0: \sigma^2_C = \sigma^2_M$ vs $H_1: \sigma^2_C \neq \sigma^2_M$ con la prueba $F$ (y Levene como verificación robusta).
-#' 
+ 
+### Supuestos
+ 
+# **Normalidad en cada grupo** (Shapiro-Wilk): Costera p = `r pf(shapiro.test(g1)$p.value)`; Montañosa p = `r pf(shapiro.test(g2)$p.value)`.
+ 
+# **Igualdad de varianzas.** Se contrasta $H_0: \sigma^2_C = \sigma^2_M$ vs $H_1: \sigma^2_C \neq \sigma^2_M$ con la prueba $F$ (y Levene como verificación robusta).
+ 
 ## ----var----------------------------------------------------------------------------------------------------
 vt <- var.test(g1, g2)
 lv <- leveneTest(Temp ~ factor(Zona), data = dd)
@@ -451,11 +447,11 @@ p_lev <- lv[["Pr(>F)"]][1]
 c(F = F_calc, p_F = vt$p.value, p_Levene = p_lev)
 iguales <- vt$p.value >= alpha
 
-#' 
-#' El estadístico es $F_c = s^2_C/s^2_M =$ `r f(F_calc)`, valor-$p$ = `r pf(vt$p.value)` (Levene: `r pf(p_lev)`). Como el valor-$p$ `r ifelse(iguales, "es mayor", "es menor")` que 0.05, `r ifelse(iguales, "no se rechaza la igualdad de varianzas: se usa la prueba $t$ con **varianzas iguales (combinada)**.", "se rechaza la igualdad de varianzas: se usa la prueba $t$ de **Welch (varianzas diferentes)**.")`
-#' 
-#' ## Prueba de hipótesis sobre la diferencia de medias
-#' 
+ 
+# El estadístico es $F_c = s^2_C/s^2_M =$ `r f(F_calc)`, valor-$p$ = `r pf(vt$p.value)` (Levene: `r pf(p_lev)`). Como el valor-$p$ `r ifelse(iguales, "es mayor", "es menor")` que 0.05, `r ifelse(iguales, "no se rechaza la igualdad de varianzas: se usa la prueba $t$ con **varianzas iguales (combinada)**.", "se rechaza la igualdad de varianzas: se usa la prueba $t$ de **Welch (varianzas diferentes)**.")`
+ 
+### Prueba de hipótesis sobre la diferencia de medias
+ 
 ## ----t2-----------------------------------------------------------------------------------------------------
 n1 <- length(g1); n2 <- length(g2); d_obs <- mean(g1) - mean(g2)
 if (iguales) {
@@ -472,25 +468,25 @@ ic_d   <- d_obs + c(-1, 1) * t_crit * ee
 c(diferencia = d_obs, error_est = ee, gl = gl2, t = t_calc, critico = t_crit, p = p_t)
 t.test(g1, g2, var.equal = iguales)   # verificación
 
-#' 
-#' - Estadístico: $T_c = \dfrac{\bar x_C - \bar x_M}{EE} =$ **`r f(t_calc, 2)`** con $gl =$ `r f(gl2, 1)`.
-#' - Valor crítico: $\pm t_{`r f(gl2, 1)`;\,0.975} = \pm$ **`r f(t_crit)`**. Valor-$p$ = `r pf(p_t)`.
-#' - IC del 95% para $\mu_C - \mu_M$: (`r f(ic_d[1], 2)`, `r f(ic_d[2], 2)`) °C.
-#' - **Decisión:** como $|T_c|$ `r ifelse(abs(t_calc) > t_crit, "es mayor", "no es mayor")` que el valor crítico, `r dec(p_t)`.
-#' - **Conclusión:** `r ifelse(p_t < alpha, paste0("con un nivel de significancia del 5% hay evidencia de que la temperatura media difiere entre zonas: los eventos en zona ", ifelse(d_obs > 0, "costera", "montañosa"), " son en promedio ", f(abs(d_obs), 1), " °C más cálidos que en la otra zona. El intervalo de confianza no contiene el cero, lo que respalda la diferencia."), "con un nivel de significancia del 5% no hay evidencia de diferencia en la temperatura media entre zonas; el intervalo de confianza contiene el cero.")`
-#' - **Implicación para la operación:** `r ifelse(p_t < alpha, "las condiciones de operación, almacenamiento y transporte (por ejemplo, productos sensibles a la temperatura) deben diferenciarse entre zona costera y zona montañosa.", "no hace falta diferenciar las condiciones térmicas de operación entre estas dos zonas.")`
-#' 
+ 
+# - Estadístico: $T_c = \dfrac{\bar x_C - \bar x_M}{EE} =$ **`r f(t_calc, 2)`** con $gl =$ `r f(gl2, 1)`.
+# - Valor crítico: $\pm t_{`r f(gl2, 1)`;\,0.975} = \pm$ **`r f(t_crit)`**. Valor-$p$ = `r pf(p_t)`.
+# - IC del 95% para $\mu_C - \mu_M$: (`r f(ic_d[1], 2)`, `r f(ic_d[2], 2)`) °C.
+#- **Decisión:** como $|T_c|$ `r ifelse(abs(t_calc) > t_crit, "es mayor", "no es mayor")` que el valor crítico, `r dec(p_t)`.
+# - **Conclusión:** `r ifelse(p_t < alpha, paste0("con un nivel de significancia del 5% hay evidencia de que la temperatura media difiere entre zonas: los eventos en zona ", ifelse(d_obs > 0, "costera", "montañosa"), " son en promedio ", f(abs(d_obs), 1), " °C más cálidos que en la otra zona. El intervalo de confianza no contiene el cero, lo que respalda la diferencia."), "con un nivel de significancia del 5% no hay evidencia de diferencia en la temperatura media entre zonas; el intervalo de confianza contiene el cero.")`
+# - **Implicación para la operación:** `r ifelse(p_t < alpha, "las condiciones de operación, almacenamiento y transporte (por ejemplo, productos sensibles a la temperatura) deben diferenciarse entre zona costera y zona montañosa.", "no hace falta diferenciar las condiciones térmicas de operación entre estas dos zonas.")`
+ 
 ## ----box-t, echo=FALSE, fig.height=3.8----------------------------------------------------------------------
 ggplot(dd, aes(Zona, Temp, fill = Zona)) + geom_boxplot(show.legend = FALSE) +
   labs(title = "Temperatura en zona costera vs montañosa", x = NULL, y = "Temperatura (°C)") + theme_minimal()
 
-#' 
-#' # Pregunta 8. Comparación de proporciones entre dos grupos
-#' 
-#' Estadístico bajo $H_0: \pi_1 = \pi_2$ (proporción combinada $\hat p = \frac{x_1 + x_2}{n_1 + n_2}$):
-#' 
-#' $$Z = \frac{\hat P_1 - \hat P_2}{\sqrt{\hat p(1-\hat p)\left(\frac{1}{n_1} + \frac{1}{n_2}\right)}}$$
-#' 
+ 
+## Pregunta 8. Comparación de proporciones entre dos grupos
+ 
+# Estadístico bajo $H_0: \pi_1 = \pi_2$ (proporción combinada $\hat p = \frac{x_1 + x_2}{n_1 + n_2}$):
+ 
+# $$Z = \frac{\hat P_1 - \hat P_2}{\sqrt{\hat p(1-\hat p)\left(\frac{1}{n_1} + \frac{1}{n_2}\right)}}$$
+ 
 ## ----fun-prop2----------------------------------------------------------------------------------------------
 ph_prop2 <- function(x1, n1, x2, n2, alt = c("two.sided", "greater", "less"), alpha = 0.05) {
   alt <- match.arg(alt)
@@ -505,13 +501,13 @@ ph_prop2 <- function(x1, n1, x2, n2, alt = c("two.sided", "greater", "less"), al
        cond = c(n1 * pc, n1 * (1 - pc), n2 * pc, n2 * (1 - pc)))
 }
 
-#' 
-#' ## Pregunta de investigación 8.1: lluvia intensa vs granizada
-#' 
-#' *¿La proporción de eventos con afectación Alta es mayor en las lluvias intensas que en las granizadas?*
-#' 
-#' $$H_0: \pi_{LL} \le \pi_{G} \qquad \text{vs} \qquad H_1: \pi_{LL} > \pi_{G}$$
-#' 
+# 
+### Pregunta de investigación 8.1: lluvia intensa vs granizada
+ 
+# *¿La proporción de eventos con afectación Alta es mayor en las lluvias intensas que en las granizadas?*
+ 
+# $$H_0: \pi_{LL} \le \pi_{G} \qquad \text{vs} \qquad H_1: \pi_{LL} > \pi_{G}$$
+ 
 ## ----prop-2a------------------------------------------------------------------------------------------------
 xa <- tapply(datos$Nivel_Afectacion == "Alto", datos$Tipo_Fenomeno, sum)
 na <- table(datos$Tipo_Fenomeno)
@@ -521,21 +517,21 @@ kable(data.frame(Grupo = c("Lluvia intensa", "Granizada"), Eventos = c(c1$n1, c1
 unlist(c1[c("est", "crit", "p")])
 prop.test(c(c1$x1, c1$x2), c(c1$n1, c1$n2), alternative = "greater", correct = FALSE)   # verificación
 
-#' 
-#' - Condiciones: todos los $n\hat p$ y $n(1-\hat p)$ son $\ge 5$: `r ifelse(all(c1$cond >= 5), "se cumplen", "NO se cumplen")` (mínimo = `r f(min(c1$cond), 1)`).
-#' - $\hat p_{LL} =$ `r f(c1$p1, 4)`; $\hat p_{G} =$ `r f(c1$p2, 4)`; $\hat p$ combinada = `r f(c1$pc, 4)`.
-#' - Estadístico: $Z_c =$ **`r f(c1$est, 2)`**. Valor crítico: $z_{0.95} =$ **`r f(c1$crit)`**. Valor-$p$ = `r pf(c1$p)`.
-#' - IC del 95% para $\pi_{LL} - \pi_{G}$: (`r f(c1$ic[1], 3)`, `r f(c1$ic[2], 3)`).
-#' - **Decisión:** `r dec(c1$p)`.
-#' - **Conclusión:** `r ifelse(c1$rech, "con un nivel de significancia del 5% hay evidencia de que la proporción de eventos con afectación alta es mayor en las lluvias intensas que en las granizadas.", "con un nivel de significancia del 5% no hay evidencia de que la proporción de afectación alta sea mayor en lluvias intensas que en granizadas.")`
-#' - **Implicación para la operación:** `r ifelse(c1$rech, "ante lluvia intensa se justifica activar antes los protocolos de contingencia (suspensión de rutas, reprogramación de despachos) que ante granizada.", "no se justifica un protocolo distinto para lluvia intensa frente a granizada según el nivel de afectación alta.")`
-#' 
-#' ## Pregunta de investigación 8.2: zona costera vs zona urbana
-#' 
-#' *¿La proporción de eventos con afectación Alta es diferente entre la zona costera y la zona urbana?*
-#' 
-#' $$H_0: \pi_{C} = \pi_{U} \qquad \text{vs} \qquad H_1: \pi_{C} \neq \pi_{U}$$
-#' 
+ 
+# - Condiciones: todos los $n\hat p$ y $n(1-\hat p)$ son $\ge 5$: `r ifelse(all(c1$cond >= 5), "se cumplen", "NO se cumplen")` (mínimo = `r f(min(c1$cond), 1)`).
+# - $\hat p_{LL} =$ `r f(c1$p1, 4)`; $\hat p_{G} =$ `r f(c1$p2, 4)`; $\hat p$ combinada = `r f(c1$pc, 4)`.
+# - Estadístico: $Z_c =$ **`r f(c1$est, 2)`**. Valor crítico: $z_{0.95} =$ **`r f(c1$crit)`**. Valor-$p$ = `r pf(c1$p)`.
+# - IC del 95% para $\pi_{LL} - \pi_{G}$: (`r f(c1$ic[1], 3)`, `r f(c1$ic[2], 3)`).
+# - **Decisión:** `r dec(c1$p)`.
+# - **Conclusión:** `r ifelse(c1$rech, "con un nivel de significancia del 5% hay evidencia de que la proporción de eventos con afectación alta es mayor en las lluvias intensas que en las granizadas.", "con un nivel de significancia del 5% no hay evidencia de que la proporción de afectación alta sea mayor en lluvias intensas que en granizadas.")`
+# - **Implicación para la operación:** `r ifelse(c1$rech, "ante lluvia intensa se justifica activar antes los protocolos de contingencia (suspensión de rutas, reprogramación de despachos) que ante granizada.", "no se justifica un protocolo distinto para lluvia intensa frente a granizada según el nivel de afectación alta.")`
+ 
+### Pregunta de investigación 8.2: zona costera vs zona urbana
+ 
+# *¿La proporción de eventos con afectación Alta es diferente entre la zona costera y la zona urbana?*
+ 
+# $$H_0: \pi_{C} = \pi_{U} \qquad \text{vs} \qquad H_1: \pi_{C} \neq \pi_{U}$$
+ 
 ## ----prop-2b------------------------------------------------------------------------------------------------
 xz <- tapply(datos$Nivel_Afectacion == "Alto", datos$Zona_Ocurrencia, sum)
 nz <- table(datos$Zona_Ocurrencia)
@@ -545,17 +541,17 @@ kable(data.frame(Grupo = c("Costera", "Urbana"), Eventos = c(c2$n1, c2$n2),
 unlist(c2[c("est", "crit", "p")])
 prop.test(c(c2$x1, c2$x2), c(c2$n1, c2$n2), correct = FALSE)   # verificación
 
-#' 
-#' - Condiciones: `r ifelse(all(c2$cond >= 5), "se cumplen", "NO se cumplen")` (mínimo $n\hat p$ o $n(1-\hat p)$ = `r f(min(c2$cond), 1)`).
-#' - $\hat p_{C} =$ `r f(c2$p1, 4)`; $\hat p_{U} =$ `r f(c2$p2, 4)`; $\hat p$ combinada = `r f(c2$pc, 4)`.
-#' - Estadístico: $Z_c =$ **`r f(c2$est, 2)`**. Valor crítico: $\pm z_{0.975} = \pm$ **`r f(c2$crit)`**. Valor-$p$ = `r pf(c2$p)`.
-#' - IC del 95% para $\pi_C - \pi_U$: (`r f(c2$ic[1], 3)`, `r f(c2$ic[2], 3)`) `r ifelse(c2$ic[1] < 0 & c2$ic[2] > 0, "(contiene el cero)", "(no contiene el cero)")`.
-#' - **Decisión:** `r dec(c2$p)`.
-#' - **Conclusión:** `r ifelse(c2$rech, "con un nivel de significancia del 5% hay evidencia de que la proporción de afectación alta difiere entre zona costera y zona urbana.", "con un nivel de significancia del 5% no hay evidencia de que la proporción de eventos con afectación alta difiera entre zona costera y zona urbana: la zona, por sí sola, no discrimina el nivel de afectación alta.")`
-#' - **Implicación para la operación:** `r ifelse(c2$rech, "la gestión del riesgo debe contemplar un tratamiento distinto para la zona costera y la urbana.", "la zona (costera o urbana) no es criterio para diferenciar los recursos de respuesta; conviene guiarse por el tipo de fenómeno y su intensidad.")`
-#' 
-#' # Pregunta 9. Interpretación global y recomendaciones
-#' 
+ 
+# - Condiciones: `r ifelse(all(c2$cond >= 5), "se cumplen", "NO se cumplen")` (mínimo $n\hat p$ o $n(1-\hat p)$ = `r f(min(c2$cond), 1)`).
+# - $\hat p_{C} =$ `r f(c2$p1, 4)`; $\hat p_{U} =$ `r f(c2$p2, 4)`; $\hat p$ combinada = `r f(c2$pc, 4)`.
+# - Estadístico: $Z_c =$ **`r f(c2$est, 2)`**. Valor crítico: $\pm z_{0.975} = \pm$ **`r f(c2$crit)`**. Valor-$p$ = `r pf(c2$p)`.
+# - IC del 95% para $\pi_C - \pi_U$: (`r f(c2$ic[1], 3)`, `r f(c2$ic[2], 3)`) `r ifelse(c2$ic[1] < 0 & c2$ic[2] > 0, "(contiene el cero)", "(no contiene el cero)")`.
+# - **Decisión:** `r dec(c2$p)`.
+# - **Conclusión:** `r ifelse(c2$rech, "con un nivel de significancia del 5% hay evidencia de que la proporción de afectación alta difiere entre zona costera y zona urbana.", "con un nivel de significancia del 5% no hay evidencia de que la proporción de eventos con afectación alta difiera entre zona costera y zona urbana: la zona, por sí sola, no discrimina el nivel de afectación alta.")`
+# - **Implicación para la operación:** `r ifelse(c2$rech, "la gestión del riesgo debe contemplar un tratamiento distinto para la zona costera y la urbana.", "la zona (costera o urbana) no es criterio para diferenciar los recursos de respuesta; conviene guiarse por el tipo de fenómeno y su intensidad.")`
+ 
+## Pregunta 9. Interpretación global y recomendaciones
+ 
 ## ----resumen-pruebas, echo=FALSE----------------------------------------------------------------------------
 resumen_ph <- data.frame(
   Prueba = c("3.1 Media de duración > 2.5 h", "3.2 Media de temperatura = 21 °C",
@@ -567,32 +563,32 @@ resumen_ph$Decision <- ifelse(resumen_ph$Valor_p < alpha, "Se rechaza H0", "No s
 resumen_ph$Valor_p <- sapply(resumen_ph$Valor_p, pf)
 kable(resumen_ph, caption = "Resumen de las pruebas de hipótesis (α = 0.05)")
 
-#' 
+ 
 ## ----tipo-alto, include=FALSE-------------------------------------------------------------------------------
 pa  <- prop.table(table(datos$Tipo_Fenomeno, datos$Nivel_Afectacion), 1)[, "Alto"]
 t_max <- names(which.max(pa)); t_min <- names(which.min(pa))
 zm  <- tapply(datos$Municipios_Afectados, datos$Nivel_Afectacion, mean)
 
-#' 
-#' **Interpretación en el contexto de los fenómenos atmosféricos**
-#' 
-#' 1. **La gravedad depende del tipo de evento.** `r ifelse(p_chi < alpha, paste0("El análisis Chi-cuadrado confirma asociación entre tipo de fenómeno y nivel de afectación. El mayor porcentaje de eventos de afectación alta corresponde a **", t_max, "** (", f(100 * pa[t_max], 1), "%) y el menor a **", t_min, "** (", f(100 * pa[t_min], 1), "%)."), "No se evidenció asociación entre el tipo de fenómeno y el nivel de afectación.")` La comparación 8.1 `r ifelse(c1$rech, "refuerza que la lluvia intensa genera con mayor frecuencia afectación alta que la granizada.", "no mostró que la lluvia intensa genere más afectación alta que la granizada.")`
-#' 2. **Los eventos duran más de lo "esperable".** `r ifelse(r1$rech, paste0("La duración media (", f(r1$xb, 2), " h) es significativamente superior a 2.5 h, por lo que los planes operativos deben contemplar interrupciones de ese orden o mayores."), "La duración media no supera significativamente las 2.5 h.")`
-#' 3. **Precipitación, duración y municipios afectados se mueven juntos.** La correlación entre `r par_fuerte[1]` y `r par_fuerte[2]` es de `r f(r_fuerte, 2)`; los eventos con afectación alta alcanzan en promedio `r f(zm["Alto"], 1)` municipios frente a `r f(zm["Bajo"], 1)` en los de afectación baja.
-#' 4. **La zona condiciona la temperatura, no necesariamente la afectación.** La temperatura media difiere entre zonas (prueba 7), mientras que `r ifelse(c2$rech, "la proporción de afectación alta también difiere entre zona costera y urbana.", "la proporción de afectación alta no difiere significativamente entre zona costera y urbana (prueba 8.2).")`
-#' 5. **Alcance de los supuestos.** Varias variables no pasan la prueba de normalidad por la alta sensibilidad de las pruebas con muestras grandes; las inferencias sobre medias se apoyan además en el teorema del límite central.
-#' 
-#' **Recomendaciones para la gestión del riesgo y la planificación de operaciones**
-#' 
-#' - **Priorizar los protocolos de contingencia** (suspensión de rutas, reprogramación de despachos, inventario de seguridad) para los eventos de tipo **`r t_max`**, que concentran la mayor proporción de afectación alta.
-#' - **Usar la precipitación acumulada como indicador temprano.** Al estar fuertemente correlacionada con la duración y con el número de municipios afectados, un umbral de precipitación puede activar alertas operativas antes de que se materialice la afectación alta.
-#' - **Planificar holguras de tiempo y rutas alternas.** Con duraciones medias de `r f(mean(datos$Duracion_horas), 1)` horas, los cronogramas de transporte y abastecimiento deben incluir colchones de tiempo y proveedores o rutas alternas, sobre todo en eventos de intensidad Alta o Extrema.
-#' - **Considerar la cobertura territorial.** Como un evento puede afectar en promedio `r f(mean(datos$Municipios_Afectados), 1)` municipios, conviene distribuir inventarios y centros de distribución para no depender de un solo corredor.
-#' - **Actualizar el análisis periódicamente** con nuevos registros, de modo que los parámetros usados en las pruebas ($\mu_0$, $\pi_0$) reflejen la situación más reciente.
-#' 
-#' # Conclusiones generales
-#' 
-#' - La base (n = `r n`) mostró variables cuantitativas de forma aproximadamente simétrica, con variabilidad que va de baja (temperatura) a alta (municipios afectados) y fuertes relaciones entre precipitación, duración y municipios afectados.
-#' - Se rechazó `r sum(resumen_ph$Decision == "Se rechaza H0")` de las `r nrow(resumen_ph)` pruebas de hipótesis planteadas al nivel $\alpha = 0.05$; el detalle de cada decisión y su conclusión en contexto está en las secciones 3 a 8.
-#' - Los resultados permiten orientar la planificación de operaciones y la gestión del riesgo hacia los tipos de fenómeno y las condiciones (precipitación, duración) que más afectan a los municipios.
+ 
+# **Interpretación en el contexto de los fenómenos atmosféricos**
+ 
+# 1. **La gravedad depende del tipo de evento.** `r ifelse(p_chi < alpha, paste0("El análisis Chi-cuadrado confirma asociación entre tipo de fenómeno y nivel de afectación. El mayor porcentaje de eventos de afectación alta corresponde a **", t_max, "** (", f(100 * pa[t_max], 1), "%) y el menor a **", t_min, "** (", f(100 * pa[t_min], 1), "%)."), "No se evidenció asociación entre el tipo de fenómeno y el nivel de afectación.")` La comparación 8.1 `r ifelse(c1$rech, "refuerza que la lluvia intensa genera con mayor frecuencia afectación alta que la granizada.", "no mostró que la lluvia intensa genere más afectación alta que la granizada.")`
+# 2. **Los eventos duran más de lo "esperable".** `r ifelse(r1$rech, paste0("La duración media (", f(r1$xb, 2), " h) es significativamente superior a 2.5 h, por lo que los planes operativos deben contemplar interrupciones de ese orden o mayores."), "La duración media no supera significativamente las 2.5 h.")`
+# 3. **Precipitación, duración y municipios afectados se mueven juntos.** La correlación entre `r par_fuerte[1]` y `r par_fuerte[2]` es de `r f(r_fuerte, 2)`; los eventos con afectación alta alcanzan en promedio `r f(zm["Alto"], 1)` municipios frente a `r f(zm["Bajo"], 1)` en los de afectación baja.
+# 4. **La zona condiciona la temperatura, no necesariamente la afectación.** La temperatura media difiere entre zonas (prueba 7), mientras que `r ifelse(c2$rech, "la proporción de afectación alta también difiere entre zona costera y urbana.", "la proporción de afectación alta no difiere significativamente entre zona costera y urbana (prueba 8.2).")`
+# 5. **Alcance de los supuestos.** Varias variables no pasan la prueba de normalidad por la alta sensibilidad de las pruebas con muestras grandes; las inferencias sobre medias se apoyan además en el teorema del límite central.
+ 
+# **Recomendaciones para la gestión del riesgo y la planificación de operaciones**
+ 
+# - **Priorizar los protocolos de contingencia** (suspensión de rutas, reprogramación de despachos, inventario de seguridad) para los eventos de tipo **`r t_max`**, que concentran la mayor proporción de afectación alta.
+# - **Usar la precipitación acumulada como indicador temprano.** Al estar fuertemente correlacionada con la duración y con el número de municipios afectados, un umbral de precipitación puede activar alertas operativas antes de que se materialice la afectación alta.
+# - **Planificar holguras de tiempo y rutas alternas.** Con duraciones medias de `r f(mean(datos$Duracion_horas), 1)` horas, los cronogramas de transporte y abastecimiento deben incluir colchones de tiempo y proveedores o rutas alternas, sobre todo en eventos de intensidad Alta o Extrema.
+# - **Considerar la cobertura territorial.** Como un evento puede afectar en promedio `r f(mean(datos$Municipios_Afectados), 1)` municipios, conviene distribuir inventarios y centros de distribución para no depender de un solo corredor.
+# - **Actualizar el análisis periódicamente** con nuevos registros, de modo que los parámetros usados en las pruebas ($\mu_0$, $\pi_0$) reflejen la situación más reciente.
+ 
+## Conclusiones generales
+ 
+# - La base (n = `r n`) mostró variables cuantitativas de forma aproximadamente simétrica, con variabilidad que va de baja (temperatura) a alta (municipios afectados) y fuertes relaciones entre precipitación, duración y municipios afectados.
+# - Se rechazó `r sum(resumen_ph$Decision == "Se rechaza H0")` de las `r nrow(resumen_ph)` pruebas de hipótesis planteadas al nivel $\alpha = 0.05$; el detalle de cada decisión y su conclusión en contexto está en las secciones 3 a 8.
+# - Los resultados permiten orientar la planificación de operaciones y la gestión del riesgo hacia los tipos de fenómeno y las condiciones (precipitación, duración) que más afectan a los municipios.
 
