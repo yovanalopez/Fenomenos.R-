@@ -1,8 +1,8 @@
 ---
-title: "Análisis estadístico de fenómenos naturales atmosféricos en Colombia"
+title: "Análisis estadístico de los fenómenos naturales atmosféricos en Colombia"
 subtitle: "Trabajo de Estadística Inferencial — Probabilidad e Inferencia Estadística"
-author: "Integrantes: (escribir aquí los nombres del grupo, máximo 3)"
-date: "Universidad de Antioquia — Ingeniería Industrial — 2026-2"
+author: "Integrantes del equipo: Duvan Estiben Granado Alzate, Yovana Patricia López Marín, Taylor Alonso Mosquera Dávila"
+date: "Universidad de Antioquia — Ingeniería Industrial Virtual — 2026-2"
 output:
   html_document:
     toc: true
@@ -17,7 +17,9 @@ options(digits = 5)
 
 # Introducción
 
-Los fenómenos atmosféricos (tormentas eléctricas, lluvias intensas, vendavales y granizadas) afectan las operaciones industriales, logísticas y de distribución. En este trabajo se analiza una base de eventos atmosféricos en Colombia con estadística descriptiva e inferencial, para apoyar decisiones de gestión del riesgo y de planificación de operaciones.
+Los fenómenos atmosféricos, como lo son en este caso las tormentas eléctricas, las lluvias intensas, los vendavales y las granizadas, afectan con frecuencia las operaciones industriales, logísticas y de distribución en Colombia. Cuando ocurren, pueden llegar a interrumpir el transporte, retrasar el abastecimiento y obligar a las empresas a replantear su planificación. Es por ello que desde la Ingeniería Industrial es importante entender cómo se comportan estos fenómenos y qué tan graves pueden llegar a ser para las comunidades en general.
+
+En el presente trabajo se analiza una base de datos con 450 eventos atmosféricos registrados, en la que se anotan el tipo de fenómeno, su intensidad, la zona de ocurrencia, el nivel de afectación, la precipitación, la velocidad del viento, la duración, la temperatura y el número de municipios afectados. En el trabajo primero se hace un análisis descriptivo para conocer los datos, y luego se aplican pruebas de hipótesis sobre medias y proporciones, pruebas de normalidad, la aplicación de una prueba Chi-cuadrado de independencia y las comparaciones entre los grupos. El objetivo de todo ello es identificar aquellos patrones que sirvan de apoyo en la gestión del riesgo y en la toma de decisiones.
 
 En todo el trabajo se usa un nivel de significancia $\alpha = 0.05$. Se rechaza $H_0$ cuando el valor-$p < \alpha$ (o cuando el estadístico cae en la región de rechazo).
 
@@ -97,13 +99,14 @@ plot(datos$Precipitacion_mm, datos$Duracion_horas, pch = 20, col = as.integer(da
 legend("topleft", legend = levels(datos$Nivel_Intensidad), col = 2:5, pch = 20, cex = 0.7)
 ```
 
-**Patrones.**
+**Patrones observados.**
 
-- Las cinco variables son aproximadamente simétricas (media cercana a la mediana y asimetría cercana a 0). Hay pocos datos atípicos.
-- La variabilidad relativa va de baja en la temperatura (CV ≈ 14%) a alta en los municipios afectados (CV ≈ 40%).
-- Precipitación y duración están fuertemente relacionadas (r = `r round(cor(datos$Precipitacion_mm, datos$Duracion_horas), 2)`): a más lluvia, el evento dura más. Los eventos con afectación alta alcanzan más municipios.
-- La temperatura es mayor en zona costera (`r round(mean(datos$Temperatura_C[datos$Zona_Ocurrencia == "Costera"]), 1)` °C) y menor en zona montañosa (`r round(mean(datos$Temperatura_C[datos$Zona_Ocurrencia == "Montañosa"]), 1)` °C).
-- La lluvia intensa y la tormenta eléctrica son los fenómenos más frecuentes, y la mayoría de los eventos tiene afectación media.
+- **Forma de las variables:** en las cinco variables cuantitativas la media y la mediana son muy parecidas entre sí. Por ejemplo, la precipitación tiene una media de 89.7 mm y una mediana de 89.4 mm. Además, la asimetría está cerca de 0. Por eso las distribuciones son aproximadamente simétricas, como se ve en los histogramas. Los boxplots muestran pocos datos atípicos.
+- **Variabilidad:** según el coeficiente de variación, la temperatura es la variable más estable (CV ≈ 14%), mientras que los municipios afectados varían mucho más de un evento a otro (CV ≈ 40%). La precipitación (30%) y la duración (32%) tienen una variabilidad intermedia.
+- **Valores típicos:** un evento promedio dura 2.8 horas, registra unos 90 mm de precipitación, vientos de 79 km/h y afecta cerca de 15 municipios. El 50% central de los eventos dura entre 2.2 y 3.3 horas.
+- **Relaciones entre variables:** la precipitación está fuertemente relacionada con la duración (r = 0.76) y con los municipios afectados (r = 0.75). Es una relación positiva: a más lluvia, el evento dura más y alcanza más municipios. El gráfico de duración contra precipitación lo confirma, porque los eventos de intensidad alta y extrema se ubican arriba a la derecha. La temperatura casi no se relaciona con las demás variables.
+- **Diferencias entre grupos:** los eventos con afectación alta alcanzan más municipios que los de afectación baja. La temperatura cambia según la zona, y es mayor en la costera (24.5 °C) y menor en la montañosa (16.8 °C).
+- **Tipos de fenómeno:** la lluvia intensa (32.7%) y la tormenta eléctrica (26.4%) son los más frecuentes, y casi la mitad de los eventos (48.7%) tiene afectación media.
 
 # Pregunta 3. Pruebas de hipótesis para la media
 
@@ -119,7 +122,8 @@ t1
 qt(1 - alpha, df = n - 1)   # valor crítico
 ```
 
-El estadístico es $t =$ `r round(t1$statistic, 2)` y el valor crítico es `r round(qt(1 - alpha, n - 1), 3)`. Como $t$ es mayor que el valor crítico (valor-$p$ `r pval(t1$p.value)`), **se rechaza $H_0$**: hay evidencia de que la duración promedio es mayor a 2.5 horas (media muestral `r round(t1$estimate, 2)` h).
+El estadístico es $t = 6.34$ y el valor crítico es 1.648. Como $t$ es mayor que el valor crítico (valor-$p$ < 0.0001), **se rechaza $H_0$**: hay evidencia de que la duración promedio de los eventos es mayor a 2.5 horas (la media muestral es 2.76 horas).
+
 *Implicación:* los turnos, rutas y despachos deben programarse con holguras de más de 2.5 horas de interrupción.
 
 ## 3.2 ¿La temperatura promedio de los eventos es diferente de 21 °C?
@@ -132,7 +136,8 @@ t2
 qt(1 - alpha / 2, df = n - 1)   # valor crítico (±)
 ```
 
-El estadístico es $t =$ `r round(t2$statistic, 2)` y el valor crítico es $\pm$ `r round(qt(1 - alpha / 2, n - 1), 3)`. Como $|t|$ es menor que el valor crítico (valor-$p$ `r pval(t2$p.value)`), **no se rechaza $H_0$**: no hay evidencia de que la temperatura promedio sea distinta de 21 °C (el IC al 95% es (`r round(t2$conf.int[1], 2)`, `r round(t2$conf.int[2], 2)`)).
+El estadístico es $t = -1.06$ y el valor crítico es $\pm$ 1.965. Como $|t|$ es menor que el valor crítico (valor-$p$ = 0.288), **no se rechaza $H_0$**: no hay evidencia de que la temperatura promedio sea distinta de 21 °C (el intervalo de confianza al 95% es (20.58, 21.13)).
+
 *Implicación:* no se requieren ajustes especiales por temperatura en la planificación general.
 
 # Pregunta 4. Pruebas de hipótesis para proporciones
@@ -151,8 +156,9 @@ z1 <- (x_g / n - 0.20) / sqrt(0.20 * 0.80 / n)   # estadístico Z
 c(p_gorro = x_g / n, Z = z1, Z_critico = qnorm(alpha))
 ```
 
-Hubo `r x_g` granizadas en `r n` eventos ($\hat p =$ `r round(x_g / n, 4)`). Como $Z =$ `r round(z1, 2)` es menor que el valor crítico `r round(qnorm(alpha), 3)` (valor-$p$ `r pval(p1$p.value)`), **se rechaza $H_0$**: hay evidencia de que las granizadas son menos del 20% de los eventos.
-*Implicación:* son un riesgo menos frecuente; los recursos de contingencia pueden priorizarse en los fenómenos más recurrentes, sin descuidar la protección de vehículos y producto.
+Para verificar los supuestos, se tiene que $n\pi_0 = 450 \times 0.20 = 90$ y $n(1-\pi_0) = 360$, que son mayores a 10, así que se puede usar la aproximación normal. En la base hubo 73 granizadas en 450 eventos, es decir, una proporción muestral de $\hat p = 0.1622$ (cerca del 16%). El estadístico es $Z = -2.00$, que es menor que el valor crítico $-1.645$, y el valor-$p$ es 0.0226, menor que $\alpha = 0.05$. Por lo tanto, **se rechaza $H_0$**: hay evidencia estadística de que las granizadas representan menos del 20% de los eventos atmosféricos.
+
+*Implicación:* las granizadas son un riesgo menos frecuente que los demás fenómenos, por lo que los recursos de contingencia pueden priorizarse en los fenómenos más recurrentes, como la lluvia intensa. Aun así, no se deben descuidar medidas de protección de vehículos, instalaciones y producto, porque cuando ocurren pueden causar daños.   
 
 ## 4.2 ¿La proporción de eventos con afectación alta es diferente de 25%?
 
@@ -166,8 +172,9 @@ z2 <- (x_a / n - 0.25) / sqrt(0.25 * 0.75 / n)
 c(p_gorro = x_a / n, Z = z2, Z_critico = qnorm(1 - alpha / 2))
 ```
 
-Hubo `r x_a` eventos de afectación alta ($\hat p =$ `r round(x_a / n, 4)`). Como $|Z| =$ `r round(abs(z2), 2)` es menor que 1.96 (valor-$p$ `r pval(p2$p.value)`), **no se rechaza $H_0$**: es compatible con que uno de cada cuatro eventos tenga afectación alta.
-*Implicación:* ese 25% es una referencia razonable para dimensionar los recursos de emergencia.
+Aquí también se cumplen los supuestos, porque $n\pi_0 = 112.5$ y $n(1-\pi_0) = 337.5$ son mayores a 10. En la base, 120 de los 450 eventos tuvieron afectación alta, lo que da una proporción muestral de $\hat p = 0.2667$ (cerca del 27%). El estadístico es $Z = 0.82$, que en valor absoluto es menor que el valor crítico 1.96, y el valor-$p$ es 0.4142, mucho mayor que $\alpha = 0.05$. Por lo tanto, **no se rechaza $H_0$**: no hay evidencia de que la proporción de eventos con afectación alta sea distinta de 25%. El intervalo de confianza al 95% para la proporción va de 0.228 a 0.309, y contiene el 0.25.
+
+*Implicación:* aproximadamente uno de cada cuatro eventos genera afectación alta, así que ese 25% es una referencia razonable para dimensionar los recursos de emergencia, como personal, vehículos e inventario de seguridad. Ojo: no rechazar $H_0$ no prueba que la proporción sea exactamente 25%, solo que los datos son compatibles con ese valor.
 
 # Pregunta 5. Pruebas de normalidad
 
@@ -175,61 +182,86 @@ Para cada variable cuantitativa:
 
 $$H_0: \text{la variable sigue una distribución normal} \qquad \text{vs} \qquad H_1: \text{la variable no sigue una distribución normal}$$
 
-Como la base es grande se usa la prueba de **Anderson-Darling** (con Jarque-Bera como apoyo), y el gráfico **cuantil-cuantil**. Se rechaza $H_0$ si valor-$p < 0.05$.
+Como la base es grande (450 datos), la prueba principal es **Anderson-Darling** (`ad.test`). Como apoyo se usan **Shapiro-Wilk** (`shapiro.test`) y **Lilliefors** (`lillie.test`), y además se revisan los histogramas con la curva normal teórica (en rojo) y los gráficos **cuantil-cuantil**. Se rechaza $H_0$ si el valor-$p < 0.05$ en Anderson-Darling.
 
 ```{r normalidad}
 norm_tab <- data.frame(
-  Variable    = cuant,
-  Prueba      = "Anderson-Darling",
-  Estadistico = sapply(cuant, function(v) ad.test(datos[[v]])$statistic),
-  Valor_p     = sapply(cuant, function(v) ad.test(datos[[v]])$p.value),
-  p_JarqueBera = sapply(cuant, function(v) jarque.bera.test(datos[[v]])$p.value))
-norm_tab$Conclusion <- ifelse(norm_tab$Valor_p < alpha, "No normal", "Normal (no se rechaza H0)")
+  Variable     = cuant,
+  A_Darling    = sapply(cuant, function(v) ad.test(datos[[v]])$statistic),
+  p_Darling    = sapply(cuant, function(v) ad.test(datos[[v]])$p.value),
+  p_Shapiro    = sapply(cuant, function(v) shapiro.test(datos[[v]])$p.value),
+  p_Lilliefors = sapply(cuant, function(v) lillie.test(datos[[v]])$p.value))
+norm_tab$Decision <- ifelse(norm_tab$p_Darling < alpha, "No normal", "Normal (no se rechaza H0)")
 knitr::kable(norm_tab, digits = 4, row.names = FALSE)
 ```
 
-```{r qq, fig.height=7}
-par(mfrow = c(2, 3))
+```{r normalidad-graf, fig.height=7}
+par(mfrow = c(2, 3))   # histogramas con la curva normal teórica (en rojo)
+for (v in cuant) {
+  hist(datos[[v]], freq = FALSE, breaks = 20, col = "lightblue", border = "white",
+       main = v, xlab = v, ylab = "Densidad")
+  curve(dnorm(x, mean(datos[[v]]), sd(datos[[v]])), add = TRUE, col = "red", lwd = 2)
+}
+par(mfrow = c(2, 3))   # gráficos cuantil-cuantil
 for (v in cuant) qqPlot(datos[[v]], distribution = "norm", main = v, id = FALSE,
                         xlab = "Cuantiles teóricos", ylab = "Cuantiles muestrales")
 ```
 
-**Conclusión.** No se rechaza normalidad en: `r paste(norm_tab$Variable[norm_tab$Valor_p >= alpha], collapse = ", ")`. Se rechaza en: `r paste(norm_tab$Variable[norm_tab$Valor_p < alpha], collapse = ", ")`, cuyos gráficos Q-Q se alejan de la recta. Con $n =$ `r n`, el teorema del límite central respalda igual las inferencias sobre medias. Para la operación, los municipios afectados no deben modelarse con una normal al estimar eventos extremos.
+**Interpretación.** Según Anderson-Darling, la precipitación (valor-$p$ = 0.0935), la duración (0.4465) y la temperatura (0.1722) tienen un valor-$p$ mayor que 0.05, así que no se rechaza $H_0$: no hay evidencia de que se alejen de la normal. En los histogramas se nota, porque las barras siguen bastante bien la curva roja, y en los gráficos Q-Q los puntos quedan pegados a la recta. La precipitación es un caso límite, porque Lilliefors sí la rechaza (valor-$p$ = 0.0276) aunque Shapiro-Wilk y Anderson-Darling no. En su histograma se ve una barra alta cerca de 90 mm que sobresale de la curva, pero en general tiene forma de campana.
+
+En cambio, la velocidad del viento (valor-$p$ = 0.0032) y los municipios afectados (valor-$p$ < 0.0001) sí se rechazan: **no siguen una distribución normal**. En el Q-Q del viento los puntos de los extremos se salen de las bandas, y su histograma se ve más aplanado que la curva roja. En los municipios afectados los puntos forman escalones, porque es una variable de conteo (números enteros), y en el histograma se observa una segunda "joroba" entre 18 y 21 municipios que la curva normal no alcanza a seguir.
+
+Esto no impide hacer pruebas sobre medias, porque con 450 datos el teorema del límite central hace que la media muestral sea aproximadamente normal. Eso sí, para la gestión del riesgo no conviene usar la curva normal para calcular la probabilidad de eventos extremos de viento o de muchos municipios afectados.
 
 # Pregunta 6. Prueba Chi-cuadrado de independencia
 
-¿Existe asociación entre el tipo de fenómeno y el nivel de afectación?
+**Pregunta de investigación:** ¿existe asociación entre la zona de ocurrencia del fenómeno y el nivel de afectación que produce? Con esto se quiere saber si hay zonas del país (urbana, rural, costera o montañosa) donde los eventos causan más daño, para priorizar los recursos por territorio.
 
-$$H_0: \text{el tipo de fenómeno y el nivel de afectación son independientes} \qquad \text{vs} \qquad H_1: \text{no son independientes}$$
+$$H_0: \text{la zona de ocurrencia y el nivel de afectación son independientes} \qquad \text{vs} \qquad H_1: \text{existe asociación entre ambas}$$
 
 ```{r chi}
-tabla <- table(datos$Tipo_Fenomeno, datos$Nivel_Afectacion)
-tabla
-round(100 * prop.table(tabla, 1), 1)     # % por fila
+tabla_zona <- table(datos$Zona_Ocurrencia, datos$Nivel_Afectacion)
+tabla_zona
+round(100 * prop.table(tabla_zona, 1), 1)     # % por fila
 
-chi <- chisq.test(tabla)
-chi$expected                             # valores esperados
-min(chi$expected)                        # supuesto: todos >= 5
+chi <- chisq.test(tabla_zona)
+chi$expected                                  # valores esperados
+min(chi$expected)                             # supuesto: todos >= 5
+sum((tabla_zona - chi$expected)^2 / chi$expected)   # estadístico calculado a mano
 chi
-qchisq(1 - alpha, df = chi$parameter)    # valor crítico
+qchisq(1 - alpha, df = chi$parameter)         # valor crítico
+sqrt(chi$statistic / (n * min(dim(tabla_zona) - 1)))   # V de Cramér
 ```
 
-**Supuesto:** todas las frecuencias esperadas son mayores o iguales a 5 (la mínima es `r round(min(chi$expected), 2)`), así que se puede aplicar la prueba.
+```{r chi-graf, fig.height=3.8}
+library(ggplot2)
+ggplot(as.data.frame(prop.table(tabla_zona, 1)), aes(Var1, Freq, fill = Var2)) +
+  geom_col() + scale_y_continuous(labels = scales::percent) +
+  labs(title = "Nivel de afectación según la zona", x = "Zona de ocurrencia",
+       y = "Porcentaje dentro de la zona", fill = "Afectación") + theme_minimal()
+```
 
-El estadístico es $\chi^2 =$ `r round(chi$statistic, 2)` con `r chi$parameter` grados de libertad; el valor crítico es `r round(qchisq(1 - alpha, chi$parameter), 2)`. Como $\chi^2$ es mayor que el valor crítico (valor-$p$ `r pval(chi$p.value)`), **se rechaza $H_0$**: el nivel de afectación depende del tipo de fenómeno. El mayor porcentaje de afectación alta corresponde a **`r names(which.max(prop.table(tabla, 1)[, "Alto"]))`** (`r round(100 * max(prop.table(tabla, 1)[, "Alto"]), 1)`%) y el menor a **`r names(which.min(prop.table(tabla, 1)[, "Alto"]))`** (`r round(100 * min(prop.table(tabla, 1)[, "Alto"]), 1)`%).
-*Implicación:* los planes de contingencia deben diferenciarse por tipo de fenómeno, con más recursos para los que más afectan.
+**Supuestos.** Todas las frecuencias esperadas son mayores o iguales a 5 (la menor es 17.27), así que se puede aplicar la prueba. Además, cada fila de la base es un evento distinto, por lo que las observaciones son independientes.
+
+**Resultado.** El estadístico es $\chi^2 = 9.67$ con $(4-1)(3-1) = 6$ grados de libertad, y el valor crítico es 12.59. Como $\chi^2$ es menor que el valor crítico (valor-$p$ = 0.1394), **no se rechaza $H_0$**: no hay evidencia de que el nivel de afectación dependa de la zona. La V de Cramér es 0.10, es decir, una asociación débil.
+
+En el gráfico se observa que la zona costera tiene la mayor proporción de afectación alta (32.6%) y la urbana la menor (23.5%), pero las barras se ven parecidas entre zonas, y esas diferencias son lo bastante pequeñas como para explicarse por el azar.
+
+*Implicación:* la zona por sí sola no es un buen criterio para decidir dónde concentrar los recursos de emergencia. Conviene planear según el tipo de fenómeno y su intensidad, y mantener un nivel de preparación similar en todas las zonas.
 
 # Pregunta 7. Comparación de medias
 
-¿La temperatura promedio es diferente entre la zona costera y la zona montañosa?
+**Pregunta de investigación:** ¿la precipitación acumulada promedio de la lluvia intensa es diferente a la de la tormenta eléctrica? Las dos traen lluvia, pero si una acumula más agua, el riesgo de inundación, de cierre de vías y de retrasos en el transporte también sería distinto.
 
-$$H_0: \mu_C = \mu_M \qquad \text{vs} \qquad H_1: \mu_C \ne \mu_M$$
+$$H_0: \mu_{LI} = \mu_{TE} \qquad \text{vs} \qquad H_1: \mu_{LI} \ne \mu_{TE}$$
 
-Primero se verifica la igualdad de varianzas ($H_0: \sigma^2_C = \sigma^2_M$) con `var.test`.
+Donde $\mu_{LI}$ es la precipitación media de la lluvia intensa y $\mu_{TE}$ la de la tormenta eléctrica. Primero se verifica la igualdad de varianzas ($H_0: \sigma^2_{LI} = \sigma^2_{TE}$) con `var.test`.
 
 ```{r medias}
-g1 <- datos$Temperatura_C[datos$Zona_Ocurrencia == "Costera"]
-g2 <- datos$Temperatura_C[datos$Zona_Ocurrencia == "Montañosa"]
+g1 <- datos$Precipitacion_mm[datos$Tipo_Fenomeno == "Lluvia intensa"]
+g2 <- datos$Precipitacion_mm[datos$Tipo_Fenomeno == "Tormenta eléctrica"]
+c(n1 = length(g1), n2 = length(g2), media1 = mean(g1), media2 = mean(g2), sd1 = sd(g1), sd2 = sd(g2))
+c(p_norm_LI = ad.test(g1)$p.value, p_norm_TE = ad.test(g2)$p.value)   # normalidad de cada grupo
 
 vt <- var.test(g1, g2)
 vt
@@ -240,10 +272,21 @@ tt
 qt(1 - alpha / 2, df = tt$parameter)   # valor crítico (±)
 ```
 
-El valor-$p$ de `var.test` es `r pval(vt$p.value)`: `r ifelse(iguales, "no se rechaza que las varianzas sean iguales, por eso se usa la prueba t con varianzas iguales.", "se rechaza la igualdad de varianzas, por eso se usa la prueba t de Welch.")` Los grupos son independientes.
+```{r medias-graf, fig.height=3.5}
+dd <- data.frame(Prec = c(g1, g2), Tipo = rep(c("Lluvia intensa", "Tormenta eléctrica"), c(length(g1), length(g2))))
+ggplot(dd, aes(Tipo, Prec, fill = Tipo)) + geom_boxplot(show.legend = FALSE) +
+  stat_summary(fun = mean, geom = "point", shape = 18, size = 3, color = "red") +
+  labs(title = "Precipitación acumulada por tipo de fenómeno", subtitle = "El rombo rojo marca la media de cada grupo",
+       x = NULL, y = "Precipitación (mm)") + theme_minimal()
+```
 
-El estadístico es $t =$ `r round(tt$statistic, 2)` con `r round(tt$parameter, 1)` grados de libertad y el valor crítico es $\pm$ `r round(qt(1 - alpha / 2, tt$parameter), 3)`. Como $|t|$ es mayor que el valor crítico (valor-$p$ `r pval(tt$p.value)`), **se rechaza $H_0$**: la temperatura media es distinta entre zonas. La zona costera promedia `r round(mean(g1), 1)` °C y la montañosa `r round(mean(g2), 1)` °C; el IC al 95% de la diferencia es (`r round(tt$conf.int[1], 2)`, `r round(tt$conf.int[2], 2)`) y no contiene el cero.
-*Implicación:* las condiciones de operación, almacenamiento y transporte de productos sensibles a la temperatura deben diferenciarse entre zona costera y montañosa.
+**Supuestos.** Los dos grupos son independientes y tienen más de 30 datos (147 lluvias intensas y 119 tormentas eléctricas), y la prueba de Anderson-Darling no rechaza la normalidad en ninguno (valor-$p$ de 0.1608 y 0.5637). Para la igualdad de varianzas, `var.test` da $F = 0.85$ y un valor-$p$ de 0.3505, así que no se rechaza que sean iguales y se usa la prueba $t$ con varianzas iguales.
+
+**Resultado.** El estadístico es $t = 4.19$ con 264 grados de libertad, y el valor crítico es $\pm 1.969$. Como $|t|$ es mayor que el valor crítico (valor-$p$ < 0.0001), **se rechaza $H_0$**: la precipitación media es distinta entre los dos fenómenos. La lluvia intensa acumula en promedio 106.5 mm y la tormenta eléctrica 95.1 mm, y el intervalo de confianza al 95% de la diferencia es (6.02, 16.67) mm, que no contiene el cero.
+
+En el boxplot se observa que la caja y la mediana de la lluvia intensa quedan más arriba que las de la tormenta eléctrica, y lo mismo pasa con los rombos rojos, que son las medias. Aun así, las cajas se traslapan un poco, así que la diferencia (de unos 11 mm en promedio) existe, pero no es enorme.
+
+*Implicación:* ante una alerta de lluvia intensa conviene activar medidas más fuertes contra inundaciones: revisar drenajes, proteger el inventario en bodegas, buscar rutas alternas y prever más tiempo para las entregas.
 
 # Pregunta 8. Comparación de proporciones
 
@@ -251,6 +294,21 @@ El estadístico es $t =$ `r round(tt$statistic, 2)` con `r round(tt$parameter, 1
 alto <- datos$Nivel_Afectacion == "Alto"
 x_tipo <- tapply(alto, datos$Tipo_Fenomeno, sum);   n_tipo <- table(datos$Tipo_Fenomeno)
 x_zona <- tapply(alto, datos$Zona_Ocurrencia, sum); n_zona <- table(datos$Zona_Ocurrencia)
+round(x_tipo / n_tipo, 3)    # proporción de afectación alta por tipo
+round(x_zona / n_zona, 3)    # proporción de afectación alta por zona
+```
+
+Antes de las pruebas, la gráfica muestra la proporción de eventos con afectación alta según el tipo de fenómeno y según la zona. La línea roja marca la proporción general (26.7%).
+
+```{r prop-graf, fig.height=3.8}
+par_8 <- rbind(data.frame(Grupo = names(x_tipo), Prop = as.numeric(x_tipo / n_tipo), Variable = "Tipo de fenómeno"),
+               data.frame(Grupo = names(x_zona), Prop = as.numeric(x_zona / n_zona), Variable = "Zona de ocurrencia"))
+ggplot(par_8, aes(Grupo, Prop)) + geom_col(fill = "steelblue") +
+  geom_hline(yintercept = mean(alto), color = "red", linetype = "dashed") +
+  facet_wrap(~ Variable, scales = "free_x") + scale_y_continuous(labels = scales::percent) +
+  labs(title = "Eventos con afectación alta", subtitle = "La línea roja marca la proporción general",
+       x = NULL, y = "Proporción con afectación alta") + theme_minimal() +
+  theme(axis.text.x = element_text(angle = 20, hjust = 1))
 ```
 
 ## 8.1 ¿La proporción de afectación alta es mayor en lluvia intensa que en granizada?
@@ -267,8 +325,9 @@ z81 <- unname((x1 / n1 - x2 / n2) / sqrt(pc * (1 - pc) * (1 / n1 + 1 / n2)))
 c(Z = z81, Z_critico = qnorm(1 - alpha))
 ```
 
-Afectación alta: lluvia intensa `r round(x1 / n1, 3)` frente a granizada `r round(x2 / n2, 3)`. Como $Z =$ `r round(z81, 2)` supera el valor crítico `r round(qnorm(1 - alpha), 3)` (valor-$p$ `r pval(pr1$p.value)`), **se rechaza $H_0$**: la lluvia intensa genera afectación alta con mayor frecuencia que la granizada.
-*Implicación:* ante lluvia intensa se justifica activar antes los protocolos de contingencia (suspender rutas, reprogramar despachos).
+En la gráfica se observa que la granizada tiene una proporción de afectación alta mucho menor (6.8%) que la lluvia intensa (31.3%), que es la barra más alta entre los tipos de fenómeno. Como $Z = 4.05$ supera el valor crítico 1.645 (valor-$p$ < 0.0001), **se rechaza $H_0$**: la lluvia intensa genera afectación alta con mayor frecuencia que la granizada.
+
+*Implicación:* ante lluvia intensa se justifica activar antes los protocolos de contingencia, como suspender rutas y reprogramar despachos. La tormenta eléctrica (30.3%) y el vendaval (29.7%) tienen proporciones parecidas a la de la lluvia intensa, así que también merecen atención.
 
 ## 8.2 ¿La proporción de afectación alta es diferente entre zona costera y zona urbana?
 
@@ -284,7 +343,8 @@ z82 <- unname((x1 / n1 - x2 / n2) / sqrt(pc * (1 - pc) * (1 / n1 + 1 / n2)))
 c(Z = z82, Z_critico = qnorm(1 - alpha / 2))
 ```
 
-Afectación alta: costera `r round(x1 / n1, 3)` frente a urbana `r round(x2 / n2, 3)`. Como $|Z| =$ `r round(abs(z82), 2)` es menor que 1.96 (valor-$p$ `r pval(pr2$p.value)`), **no se rechaza $H_0$**: no hay evidencia de que la proporción difiera entre estas zonas.
+Afectación alta: costera 32.6% frente a urbana 23.5%. En la gráfica se ve que la costera es la zona más alta y la urbana la más baja, pero las diferencias entre zonas son pequeñas comparadas con las que hay entre tipos de fenómeno, donde la granizada queda muy por debajo de la línea roja. Como $|Z| = 1.57$ es menor que 1.96 (valor-$p$ = 0.1166), **no se rechaza $H_0$**: no hay evidencia de que la proporción sea distinta entre estas zonas.
+
 *Implicación:* la zona no es criterio para repartir los recursos de respuesta; conviene guiarse por el tipo de fenómeno y su intensidad.
 
 # Pregunta 9. Conclusión general y plan de acción
@@ -293,7 +353,7 @@ Afectación alta: costera `r round(x1 / n1, 3)` frente a urbana `r round(x2 / n2
 resumen <- data.frame(
   Prueba = c("3.1 Duración media > 2.5 h", "3.2 Temperatura media = 21 °C",
              "4.1 Proporción de granizadas < 0.20", "4.2 Proporción afectación alta = 0.25",
-             "6. Tipo de fenómeno vs afectación (Chi²)", "7. Temperatura costera vs montañosa",
+             "6. Zona de ocurrencia vs afectación (Chi²)", "7. Precipitación: lluvia intensa vs tormenta eléctrica",
              "8.1 Afectación alta: lluvia intensa > granizada", "8.2 Afectación alta: costera vs urbana"),
   Valor_p = c(t1$p.value, t2$p.value, p1$p.value, p2$p.value, chi$p.value, tt$p.value, pr1$p.value, pr2$p.value))
 resumen$Decision <- ifelse(resumen$Valor_p < alpha, "Se rechaza H0", "No se rechaza H0")
@@ -301,17 +361,13 @@ resumen$Valor_p <- sapply(resumen$Valor_p, pval)
 knitr::kable(resumen, row.names = FALSE)
 ```
 
-```{r aux-conclusion, include=FALSE}
-t_max <- names(which.max(prop.table(tabla, 1)[, "Alto"]))
-```
-
-**Conclusión.** Los eventos duran en promedio más de 2.5 horas, y su gravedad depende del tipo de fenómeno: **`r t_max`** concentra la mayor proporción de afectación alta, mientras que las granizadas son menos frecuentes. La precipitación es el factor que más se mueve junto con la duración y con el número de municipios afectados. La temperatura difiere entre zonas, pero la zona por sí sola no explica la afectación alta.
+**Conclusión.** En general, los eventos duran en promedio más de 2.5 horas y su gravedad parece depender más del **tipo de fenómeno** que del lugar donde ocurren. La lluvia intensa es el tipo con mayor proporción de afectación alta (31.3%) y supera de forma significativa a la granizada (6.8%), mientras que la zona de ocurrencia no cambió de forma significativa la afectación (preguntas 6 y 8.2). Además, la lluvia intensa acumula más precipitación que la tormenta eléctrica (pregunta 7), y la precipitación es la variable que más se mueve junto con la duración y con el número de municipios afectados (pregunta 2). Por último, la velocidad del viento y los municipios afectados no son normales, por lo que no conviene modelarlos con una curva normal.
 
 **Plan de acción como ingenieros industriales:**
 
-- Priorizar los protocolos de contingencia (suspensión de rutas, reprogramación de despachos, inventario de seguridad) para los eventos de tipo `r t_max`.
-- Usar la precipitación acumulada como alerta temprana, porque anticipa duración y municipios afectados.
-- Programar holguras de tiempo y rutas o proveedores alternos, ya que los eventos duran en promedio `r round(mean(datos$Duracion_horas), 1)` horas y afectan en promedio `r round(mean(datos$Municipios_Afectados), 1)` municipios.
-- Diferenciar el manejo térmico de productos sensibles entre zona costera y montañosa.
+- Priorizar los protocolos de contingencia (suspensión de rutas, reprogramación de despachos, inventario de seguridad) para los eventos de lluvia intensa, que son los más frecuentes y los que más afectación alta generan.
+- Reforzar las medidas contra inundaciones ante alertas de lluvia intensa (drenajes, inventario protegido, rutas alternas), porque acumula más precipitación que la tormenta eléctrica.
+- Usar la precipitación acumulada como alerta temprana, porque anticipa la duración y los municipios afectados.
+- Programar holguras de tiempo y rutas o proveedores alternos, ya que los eventos duran en promedio 2.8 horas y afectan en promedio 14.7 municipios.
+- Diferenciar el manejo térmico de productos sensibles entre zona costera y montañosa, según se observó en el análisis descriptivo (24.5 °C frente a 16.8 °C).
 - Actualizar este análisis con nuevos registros para mantener los valores de referencia al día.
-
